@@ -11,7 +11,7 @@ tags: [Cocos2d-x]
 
 *android.mk*
 
-pre(prettyprint). 
+pre. 
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := game_shared

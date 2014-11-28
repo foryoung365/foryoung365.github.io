@@ -27,12 +27,12 @@ h2. 解决方案
 
 仔细核对了权限申请单上的URL和本地的URL:
 
-pre(prettyprint). 
+pre. 
 https://172.23.xxx.xxx/svn/svn_xxxServer
 
 发现没错。然后又找生产专员确认了SVN路径，才发现正确的路径是：
 
-pre(prettyprint). 
+pre. 
 https://172.23.xxx.xxx/svn/Svn_XxxServer
 
 使用正确的URL重新checkout后commit，问题解决。

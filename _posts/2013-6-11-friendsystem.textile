@@ -21,7 +21,7 @@ h2. 解决方案
 
 采用如下数据表记录好友信息（这里只列出部分关键字段）：
 
-pre(prettyprint). 
+pre. 
 CREATE TABLE `cq_friend` (
     `id` int(4) unsigned NOT NULL auto_increment,
     `user_id` int(4) unsigned NOT NULL default '0',
@@ -34,7 +34,7 @@ CREATE TABLE `cq_friend` (
 
 其中frd_type用来记录好友的类型：
 
-pre(prettyprint). 
+pre. 
 enum FRIENDTYPE
 {
     FRIENDTYPE_FRIEND               = 0x1,  //好友
@@ -49,14 +49,14 @@ enum FRIENDTYPE
 
 比如同时查找好友和听众：
 
-pre(prettyprint). 
+pre. 
 FRIENDTYPE_FRIEND | FRIENDTYPE_FANS
 
 添加好友时，需要添加两条数据库记录：
 
 玩家A添加玩家B为好友：
 
-pre(prettyprint). 
+pre. 
   1.user_id=ID(A), frd_id=ID(B), frd_type=FRIENDTYPE_FRIEND （B是A的好友）
   2.user_id=ID(B), frd_id=ID(A), frd_type=FRIENDTYPE_FANS   （A是B的听众）
 
@@ -68,7 +68,7 @@ pre(prettyprint).
 
 玩家A添加玩家B到黑名单：
 
-pre(prettyprint). 
+pre. 
   1.user_id=ID(A) frd_id=ID(B) frd_type=FRIENDTYPE_BLACKLIST（B是A的黑名单）
   2.user_id=ID(B) frd_id=ID(A) frd_type=FRIENDTYPE_BEBLACKED（B被A加入黑名单） 
 

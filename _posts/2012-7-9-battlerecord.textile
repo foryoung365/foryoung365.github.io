@@ -15,7 +15,7 @@ tags: [GameDevelopment]
 
 *MsgPacker(2000+300)*
 
-pre(prettyprint). 
+pre. 
 enum MSGPACKER_ACTION
     {
         MSGPACKER_None              = 0,        //无效
@@ -25,7 +25,7 @@ enum MSGPACKER_ACTION
                                                       //s2c dwData = BATTLE_WINNER
     };
 
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {
@@ -39,7 +39,7 @@ typedef struct
 
 *MsgBattle(2000+301)*
 
-pre(prettyprint). 
+pre. 
 enum MSGBATTLE_ACTION
     {
         MSGBATTLE_None,              = 0,            //无效 
@@ -51,7 +51,7 @@ enum MSGBATTLE_ACTION
         MSGBATTLE_HandEnd            = 6,            //交手结束
     };
 	
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {
@@ -63,7 +63,7 @@ typedef struct
 
 *MsgNormalAttack(2000+302)*
 
-pre(prettyprint). 
+pre. 
 enum DAMAGE_TYPE
     {
         DAMAGETYPE_None         = 0,     //无效
@@ -71,7 +71,7 @@ enum DAMAGE_TYPE
         DAMAGETYPE_CounterAttack= 2,     //反击
     };
 	
-pre(prettyprint). 
+pre. 
 enum MSGNORMALATTACK_ACTION
     {
         MSGNORMALATTACK_None        = 0, //无效
@@ -79,7 +79,7 @@ enum MSGNORMALATTACK_ACTION
         MSGNORMALATTACK_MgcAtk      = 2, //策略攻击
     };
 	
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {
@@ -94,7 +94,7 @@ typedef struct
 
 *MsgMagicAttack(2000+303)*
 
-pre(prettyprint). 
+pre. 
 enum MSGMAGICATTACK_ACTION
     {
         MSGMAGICATTACK_None             = 0,     //无效
@@ -102,7 +102,7 @@ enum MSGMAGICATTACK_ACTION
         MSGMAGICATTACK_MgcAttack        = 2,     //策略型技能攻击
     };
 	
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {
@@ -112,7 +112,7 @@ typedef struct
 }MagicRoleInfo_t;
 #pragma pack(pop)
 	
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {
@@ -127,7 +127,7 @@ typedef struct
 
 *MsgHitAction(2000+304)*
 
-pre(prettyprint). 
+pre. 
 enum MSGHITACTION           //受击类型
     {
         HITACTION_None      = 0,        //无效
@@ -137,7 +137,7 @@ enum MSGHITACTION           //受击类型
         HITACTION_Bang,     = 4,        //暴击
     };
 	
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
     typedef struct
     {
@@ -149,7 +149,7 @@ pre(prettyprint).
 
 *MsgBattleStatus(2000+305)*
 
-pre(prettyprint). 
+pre. 
 enum MSGBATTLESTATUS_ACTION
     {
         MSGBATTLESTATUS_None        = 0,    //无效状态
@@ -157,7 +157,7 @@ enum MSGBATTLESTATUS_ACTION
         MSGBATTLESTATUS_Del         = 2,    //删除状态
     };
 	
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {
@@ -172,7 +172,7 @@ typedef struct
 
 *MsgBattleAttrib(2000+306)*
 
-pre(prettyprint). 
+pre. 
 enum MSGBATTLEATTRIB
     {
         MSGBATTLEATTRIB_None            = 0,        //无效
@@ -180,7 +180,7 @@ enum MSGBATTLEATTRIB
         MSGBATTLEATTRIB_AddAnger        = 2,        //气势
     };
 
-pre(prettyprint). 
+pre. 
 #pragma pack(push, 1)
 typedef struct
 {

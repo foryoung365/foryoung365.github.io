@@ -13,14 +13,14 @@ h2. 问题描述
 
 有如下函数声明
 
-pre(prettyprint). 
+pre. 
 I64 CFriendRecord::GetInt(FRIEND_DATA eType) const;
 
 该函数的作用是根据eType（其实就是字段的索引号）返回对应数据库记录的字段值
 
 数据库表部分结构如下：
 
-pre(prettyprint). 
+pre. 
 id  	int(4),unsigned
 userid 	int(4),unsigned
 friend 	int(4),unsigned
@@ -28,22 +28,22 @@ friend 	int(4),unsigned
 
 现在想要用LOGERR在出错时把程序获取到的该条记录的以上三个字段打印出来：
 
-pre(prettyprint). 
+pre. 
 LOGERR("%u, %u, %u\n", pFriendData->GetInt(0), pFriendData->GetInt(1), pFriendData->GetInt(2));
 
 数据库真实记录值如下：
 
-pre(prettyprint). 
+pre. 
 90 1000834 1000835
 
 而打印出来的结果是
 
-pre(prettyprint). 
+pre. 
 90 0 1000834
 
 而使用
 
-pre(prettyprint). 
+pre. 
 LOGERR("%u", pFriendData->GetInt(0));
 LOGERR("%u", pFriendData->GetInt(1));
 LOGERR("%u", pFriendData->GetInt(2));
@@ -64,5 +64,5 @@ h2. 解决方案
 
 使用LOGERR,LOGINFO等日志宏记录数据库信息时，需要注意格式化输出的格式必须和参数相匹配（比如本例中的函数返回值I64），而不是使用数据库对应字段的数据类型
 
-pre(prettyprint). 
+pre. 
 LOGERR("%llu, %llu, %llu\n", pFriendData->GetInt(0), pFriendData->GetInt(1), pFriendData->GetInt(2));
