@@ -3,7 +3,7 @@ layout: post
 title: "Mactype配置文件"
 description: "Mactype配置文件"
 category: Personality
-tags: [Config]
+tags: [Configuration]
 ---
 {% include JB/setup %}
 
