@@ -1,0 +1,12 @@
+---
+layout: post
+title: "C语言常见问题集锦"
+description: "C语言常见问题集锦"
+category: Development
+tags: [C++]
+---
+{% include JB/setup %}
+
+C语言常见问题集锦,可以作为参问题参考手册使用。
+
+"地址请戳我":http://c-faq-chn.sourceforge.net/ccfaq/index.html
