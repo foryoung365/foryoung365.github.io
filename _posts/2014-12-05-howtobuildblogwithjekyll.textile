@@ -2,7 +2,7 @@
 layout: post
 title: "用Jekyll在GitHub上搭建个人网站"
 description: "用Jekyll在GitHub上搭建个人网站"
-category: Development
+category: Tutorial
 tags: [Web]
 ---
 {% include JB/setup %}
