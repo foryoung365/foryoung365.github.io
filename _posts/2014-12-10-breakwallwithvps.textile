@@ -63,7 +63,9 @@ h2(#bettersolution). 改进计划
 * 已有的国内外分流方案基本上都是用["ChnRoutes":https://github.com/jimmyxu/chnroutes]来做，原理是通过修改路由表来区分国内外访问。但是很麻烦有木有，每次开VPN都要折腾一次。而且最坑爹的是每次执行那个脚本都要很久，而且路由表大了访问速度肯定慢。
 * [-我打算把ShadowSocks做一些修改，直接把路由选择集成到ShadowSocks里面，这样就可以做到零配置国内外分流了。-][*发现最新版的ShaodowSocks-gui已经支持根据Pac文件自动分流了，文件戳["这里":/attachments/pac.txt]。把pac.txt直接扔到shadowSocks-gui的根目录下面即可。你需要根据自己的配置进行修改。*]
 首先找到代理端口设置：
+
 pre. var proxy = 'SOCKS5 127.0.0.1:7070; SOCKS 127.0.0.1:7070; DIRECT';
+
 将其中的7070端口替换为你自己设定的本机代理端口。
 
 然后找到本机不使用代理的设置：
