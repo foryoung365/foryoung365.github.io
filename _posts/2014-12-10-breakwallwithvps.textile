@@ -59,4 +59,30 @@ h2. 改进计划
 * 使用ShadowSocks做全局代理
 * 国内外分流（即国内网站走直连，国外网站全部走代理）
 * 已有的国内外分流方案基本上都是用["ChnRoutes":https://github.com/jimmyxu/chnroutes]来做，原理是通过修改路由表来区分国内外访问。但是很麻烦有木有，每次开VPN都要折腾一次。而且最坑爹的是每次执行那个脚本都要很久，而且路由表大了访问速度肯定慢。
-* 我打算把ShadowSocks做一些修改，直接把路由选择集成到ShadowSocks里面，这样就可以做到零配置国内外分流了。
+* [-我打算把ShadowSocks做一些修改，直接把路由选择集成到ShadowSocks里面，这样就可以做到零配置国内外分流了。-]发现最新版的ShaodowSocks-gui已经支持根据Pac文件自动分流了，文件戳["这里":/attachments/pac.txt]。把pac.txt直接扔到shadowSocks-gui的根目录下面即可。你需要根据自己的配置进行修改。
+首先找到代理端口设置：
+pre. var proxy = 'SOCKS5 127.0.0.1:7070; SOCKS 127.0.0.1:7070; DIRECT';
+将其中的7070端口替换为你自己设定的本机代理端口。
+
+然后找到本机不使用代理的设置：
+
+pre. 
+if (isPlainHostName(host)
+     || host === '127.0.0.1'
+     || host === 'localhost') {
+        return 'DIRECT';
+    }
+	
+修改为
+
+pre. 
+if (isPlainHostName(host)
+     || host === '127.0.0.1'
+     || host === 'localhost'
+     || host === '你的VPS主机的IP') {
+        return 'DIRECT';
+    }
+	
+这个修改是因为你的VPS主机地址是国外地址，如果也走代理，就会出现死循环，所以必须将这个地址排除在代理列表之外。
+
+最后将ShadowSocks里面的start on boot勾上，以后就可以完美无缝的科学上网了。
