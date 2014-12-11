@@ -42,8 +42,10 @@ h2. 使用ShadowSocks
 
 服务器IP就是VPS主机的IP，端口是你在VPS主机上启动ShadowSocks服务端使用的端口号，密码也是当时设置的密码，加密方式也需要相同。
 
-本机的代理端口可以随便填，比如7070。使用Chrome浏览器可以下载一个SwitchySharp插件。
-然后根据这份["设置教程":http://switchysharp.com/setting.html]进行配置，之后访问被墙的网站就会自动使用代理了。
+本机的代理端口可以随便填，比如7070。[-使用Chrome浏览器可以下载一个SwitchySharp插件。
+然后根据这份["设置教程":http://switchysharp.com/setting.html]进行配置，之后访问被墙的网站就会自动使用代理了。-]
+
+更方便智能的方案参考["改进计划":#bettersolution]。
 
 h2. 游戏代理
 
@@ -51,7 +53,7 @@ h2. 游戏代理
 
 使用代理设置软件["ProxyCap":http://www.proxycap.com/]，把需要的游戏加进去就可以了。
 
-h2. 改进计划
+h2(#bettersolution). 改进计划
 
 ***
 
@@ -59,7 +61,7 @@ h2. 改进计划
 * 使用ShadowSocks做全局代理
 * 国内外分流（即国内网站走直连，国外网站全部走代理）
 * 已有的国内外分流方案基本上都是用["ChnRoutes":https://github.com/jimmyxu/chnroutes]来做，原理是通过修改路由表来区分国内外访问。但是很麻烦有木有，每次开VPN都要折腾一次。而且最坑爹的是每次执行那个脚本都要很久，而且路由表大了访问速度肯定慢。
-* [-我打算把ShadowSocks做一些修改，直接把路由选择集成到ShadowSocks里面，这样就可以做到零配置国内外分流了。-]发现最新版的ShaodowSocks-gui已经支持根据Pac文件自动分流了，文件戳["这里":/attachments/pac.txt]。把pac.txt直接扔到shadowSocks-gui的根目录下面即可。你需要根据自己的配置进行修改。
+* [-我打算把ShadowSocks做一些修改，直接把路由选择集成到ShadowSocks里面，这样就可以做到零配置国内外分流了。-][*发现最新版的ShaodowSocks-gui已经支持根据Pac文件自动分流了，文件戳["这里":/attachments/pac.txt]。把pac.txt直接扔到shadowSocks-gui的根目录下面即可。你需要根据自己的配置进行修改。*]
 首先找到代理端口设置：
 pre. var proxy = 'SOCKS5 127.0.0.1:7070; SOCKS 127.0.0.1:7070; DIRECT';
 将其中的7070端口替换为你自己设定的本机代理端口。
