@@ -3,7 +3,7 @@ layout: post
 title: "美剧网站"
 description: "美剧网站"
 category: Entertainment
-tags: [Movies]
+tags: [Series]
 ---
 {% include JB/setup %}
 
