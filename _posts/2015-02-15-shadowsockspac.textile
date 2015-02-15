@@ -16,7 +16,7 @@ h2. 起因
 
 今天一怒之下终于用Python写了一个PAC自动生成器，可以自动下载最新版本的[*ShadowSocks-gui*]，并且根据你的[*ShadowSocks-gui*]的配置文件自动生成对应的PAC文件。这样我只要把gui-config.json和GenPac.exe一起打包上传到网盘。以后在新的电脑上用只需要双击[*GenPac.exe*]就收工了。
 
-另外我在GitHub建了个["代码库(ShadowSocksPac)":https://github.com/foryoung365/ShadowSocksPac]，提供了源代码，基于leaskh的flora_Pac项目修改而成，目前只支持[*ShadowSocks-gui*]，要求2.3以上版本（2.3版本的配置文件格式与之前不同）。["GenPac.exe文件可从这里下载":/attachments/GenPac.exe]，感兴趣的可以自己去下载源代码，欢迎补充完善或者在本站评论区提供建议。这个还是自用为主，不喜勿喷。
+另外我在GitHub建了个["代码库(ShadowSocksPac)":https://github.com/foryoung365/ShadowSocksPac]，提供了源代码，基于leaskh的flora_Pac项目修改而成，目前只支持[*ShadowSocks-gui*]，要求2.3以上版本（2.3版本的配置文件格式与之前不同）。["GenPac.exe文件可从这里下载":/attachments/GenPac.rar]，感兴趣的可以自己去下载源代码，欢迎补充完善或者在本站评论区提供建议。这个还是自用为主，不喜勿喷。
 
 h2. 使用说明
 
