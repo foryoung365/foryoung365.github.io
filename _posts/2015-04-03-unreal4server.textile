@@ -1,0 +1,88 @@
+---
+layout: post
+title: "虚幻4引擎作为游戏服务器评估"
+description: "虚幻4引擎作为游戏服务器评估"
+category: Development
+tags: [UnrealEngine4]
+---
+{% include JB/setup %}
+
+h2. 引擎提供的特性
+
+***
+
+# 地图加载
+# 碰撞检测
+# 蓝图
+# 网络连接("Networking & Multiplayer":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/index.html)
+ ** "CS模型":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Server/index.html
+ ** Socket连接和传输通道建立（引擎的C/S登录流程）：
+  *** World.cpp 3619
+  *** NMT_Hello
+# 同步机制("Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Example/index.html)
+ ** 位置同步
+  *** 角色移动组件("Character Movement Component":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/CharacterMovementComponent/index.html)
+   **** 新增一个传送技能的示例
+ ** 数据同步("Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html)
+  *** "Properties":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Properties/index.html
+   **** 同步不是瞬间发生的，每隔很短的时间会同步一次，所以同步并非立即生效。
+   **** 如果属性在同一帧被反复更改多次，只有最终结果会被同步给客户端。如果最终结果相同，则不会同步给客户端。如血量100->80->50->100，和最初相同都是100，不会发生同步。
+   **** 大概可以理解为，属性更改是在游戏逻辑中发生的。在游戏逻辑之外有个时间间隔很短的定时器，每隔一段时间检测有发生更改的属性并同步给客户端。
+  *** "RPCS":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html
+  *** "Components":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html
+  *** 可以基于条件、相关性、距离来控制是否同步("Actor Relevancy and Priority":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Relevancy/index.html)
+  *** 服务器和客户端角色权限的区分("Actor Role and RemoteRole":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Roles/index.html)
+   **** 服务端:ROLE_Authority
+   **** AI(NPC,怪物等):ROLE_SimulatedProxy
+   **** 客户端（玩家角色）:ROLE_AutonomousProxy
+  *** 详细的同步流程("Detailed Actor Replication Flow":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationFlow/index.html)
+   **** 调试方法:
+    ***** console command:"p.NetShowCorrections 1"
+    ***** console command:"log LogNetPlayerMovement Verbose"
+  *** 性能优化("Performance and Bandwidth Tips":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationPerformance/index.html)
+   
+h2. 需要确认或者自己实现的特性
+
+***
+
+# 多地图
+ ** 可否支持多地图？
+  *** 世界地图,类似WOW那种，目前部分特性不支持网游使用("World Composition":https://docs.unrealengine.com/latest/INT/Engine/LevelStreaming/WorldBrowser/index.html)
+  *** 静态多地图游服可以支持（目前只测试过两个地图，理论上可以支持任意多个）
+ ** 如何切换？("Travelling in Multiplayer":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Travelling/index.html)
+  *** 无缝切换
+   **** ServerTravel：（服务器把所有玩家切到一张新地图去，适合开房间那种单地图的游戏）
+   **** ClientTravel：(将某个客户端切换到地图)
+   **** 目前只切换地图，并不会改变玩家坐标，需要进一步研究   
+  *** 非无缝切换
+   **** Browse：相当于硬切换，会将所有客户端踢下线
+ ** 创建副本？
+# 多线程
+ ** 是否支持多线程？--支持，本身游服有十几个线程，游戏逻辑线程是GameThread
+ ** 内置线程池的作用？--(从源码来看，线程池是用来做一些杂事的，比如SVN源码管理，同步和后台任务等)
+ ** 为何ServerOnly时，线程池只保留一个线程？--(还未细看，目前猜测是这个线程池对游服基本没用，但是必须有一个线程才能把线程池创建起来)
+# 版本匹配问题
+ ** C/S版本不同是否可以登录？
+  *** NMT_Hello
+  *** FNetworkVersion::GetLocalNetworkVersion()
+  *** FNetworkVersion::IsNetworkCompatible(LocalNetworkVersion, RemoteNetworkVersion)
+# 性能问题
+ ** 最多可承载客户端数量是多少？
+ ** 假设有2000人客户端，同时能承受多少个AI
+ ** 最低性能需求：2000客户端，50000AI
+# 数据库连接
+ ** 如何集成？
+ ** 使用什么第三方库？
+ 
+h2. 内容示例索引
+
+***
+
+"官方文档":https://docs.unrealengine.com/latest/INT/Resources/ContentExamples/index.html
+
+h2. 杂记
+
+***
+
+
+ 

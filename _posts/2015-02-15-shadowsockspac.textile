@@ -2,7 +2,7 @@
 layout: post
 title: "ShadowSocks-gui的PAC文件生成器"
 description: "ShadowSocks-gui的PAC文件生成器"
-category: development
+category: Development
 tags: [PacGenerotor]
 ---
 {% include JB/setup %}
