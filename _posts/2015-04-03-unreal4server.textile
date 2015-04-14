@@ -11,6 +11,8 @@ h2. 引擎提供的特性
 
 ***
 
+概览:("Introduction to C++ Programming in UE4":https://docs.unrealengine.com/latest/INT/Programming/Introduction/index.html)
+
 # 地图加载
 # 碰撞检测
 # 蓝图
@@ -28,9 +30,11 @@ h2. 引擎提供的特性
    **** 同步不是瞬间发生的，每隔很短的时间会同步一次，所以同步并非立即生效。
    **** 如果属性在同一帧被反复更改多次，只有最终结果会被同步给客户端。如果最终结果相同，则不会同步给客户端。如血量100->80->50->100，和最初相同都是100，不会发生同步。
    **** 大概可以理解为，属性更改是在游戏逻辑中发生的。在游戏逻辑之外有个时间间隔很短的定时器，每隔一段时间检测有发生更改的属性并同步给客户端。
+   **** 属性变化时，可以触发回调函数，通过指定ReplicatedUsing=OnRep_xxx来设置回调函数。OnRep_xxx函数必须加上UFUNCTION()以暴露给UE4，并且该函数只会在客户端执行，服务端如果需要执行，必须手动调用
   *** "RPCS":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html
   *** "Components":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html
   *** 可以基于条件、相关性、距离来控制是否同步("Actor Relevancy and Priority":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Relevancy/index.html)
+   **** 基于距离控制是否同步:NetCullDistanceSquared
   *** 服务器和客户端角色权限的区分("Actor Role and RemoteRole":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Roles/index.html)
    **** 服务端:ROLE_Authority
    **** AI(NPC,怪物等):ROLE_SimulatedProxy
@@ -40,6 +44,7 @@ h2. 引擎提供的特性
     ***** console command:"p.NetShowCorrections 1"
     ***** console command:"log LogNetPlayerMovement Verbose"
   *** 性能优化("Performance and Bandwidth Tips":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationPerformance/index.html)
+# 垃圾回收和内存释放("Garbage Collection & Dynamic Memory Allocation":https://wiki.unrealengine.com/Garbage_Collection_%26_Dynamic_Memory_Allocation)
    
 h2. 需要确认或者自己实现的特性
 
@@ -56,7 +61,7 @@ h2. 需要确认或者自己实现的特性
    **** 目前只切换地图，并不会改变玩家坐标，需要进一步研究   
   *** 非无缝切换
    **** Browse：相当于硬切换，会将所有客户端踢下线
- ** 创建副本？
+ ** 如何创建副本？
 # 多线程
  ** 是否支持多线程？--支持，本身游服有十几个线程，游戏逻辑线程是GameThread
  ** 内置线程池的作用？--(从源码来看，线程池是用来做一些杂事的，比如SVN源码管理，同步和后台任务等)
@@ -74,15 +79,50 @@ h2. 需要确认或者自己实现的特性
  ** 如何集成？
  ** 使用什么第三方库？
  
-h2. 内容示例索引
+h2. 内容示例(ContentExamples)索引
 
 ***
 
 "官方文档":https://docs.unrealengine.com/latest/INT/Resources/ContentExamples/index.html
 
+* 网络相关：Network_Features
+
+h2. 参考资料
+
+***
+
+# "官方英文手册":https://docs.unrealengine.com/latest/INT/
+# "中文手册":http://unrealchina.org/minibook/
+ ** 非官方提供，渣翻译质量
+ ** 有能力还是建议直接看英文原版
+# "开发环境配置（强烈建议按照推荐设置）":https://docs.unrealengine.com/latest/INT/Programming/Development/VisualStudioSetup/index.html
+ ** 用VS2013Cummunity只要配置以下几步
+  ***　１.Increase the width of the Solution Configurations dropdown menu
+  *** Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools > Options > Text Editor > C/C++ > View).
+  *** Turn off Edit & Continue features, you do not need them. (Tools > Options > Debugging > Edit and Continue)
+  *** Turn off Format After Paste. It does weird things sometimes. (VAssistX > Visual Assist X Options > Advanced > Corrections)
+# 英文电子书
+ ** "Learning.C++.by.Creating.Games.with.UE4.2015":http://pan.baidu.com/s/1pnUMi 提取码:xse6
+  *** "随书code":http://pan.baidu.com/s/1qWv7daW 提取码:bx5i
+# "官方视频教程":https://wiki.unrealengine.com/Videos
+# "DigitalTutors的视频教程":http://www.digitaltutors.com/software/Unreal-Engine-tutorials
+# "老外整理的关于MMO框架、第三方库和UE4网络相关特性的汇总贴":https://forums.unrealengine.com/showthread.php?22928-Next-Gen-MMO-Plug-in-for-UE4
+# "独立服务器使用指引":https://wiki.unrealengine.com/Dedicated_Server_Guide_(Windows_%26_Linux)
+# "性能和配置":https://docs.unrealengine.com/latest/INT/Engine/Performance/index.html
+# UE4网络特性的相关参考
+ ** "Network Replication, Using ReplicatedUsing / RepNotify vars":https://wiki.unrealengine.com/Network_Replication,_Using_ReplicatedUsing_/_RepNotify_vars
+ ** "Networking/Replication":https://wiki.unrealengine.com/Networking/Replication
+ ** "NETWORK TIPS AND TRICKS":https://www.unrealengine.com/blog/network-tips-and-tricks
+ ** "FINDING NETWORK-BASED EXPLOITS":https://www.unrealengine.com/blog/finding-network-based-exploits
+ ** "Replication":https://wiki.unrealengine.com/Replication
+ ** "New Blueprint Networking Tutorial Videos Posted":https://forums.unrealengine.com/showthread.php?2956-New-Blueprint-Networking-Tutorial-Videos-Posted&p=20354
+# 编码规范("Coding Standard":https://docs.unrealengine.com/latest/INT/Programming/Development/CodingStandard/index.html)
+
 h2. 杂记
 
 ***
 
-
+# 代码编译完成后编辑器崩溃
+ ** 一般都是代码问题导致的
+ ** 在构造函数中绑定按键映射
  
