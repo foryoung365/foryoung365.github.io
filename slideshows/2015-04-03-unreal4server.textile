@@ -1,0 +1,152 @@
+title: 虚幻4引擎C++开发简介
+subtitle: 傅砚
+
+footer: Unreal Engine 4
+subfooter: 
+
+h2. 主要内容
+
+---
+
+# 开发环境的配置
+# UE4网络框架简介
+ ** Actor Replication
+  *** Properties
+  *** Components
+  *** RPC
+  *** 位置同步
+ ** 地图切换
+# 用C++做一个简单的网络Demo
+
+h2. "开发环境配置":https://docs.unrealengine.com/latest/INT/Programming/Development/VisualStudioSetup/index.html
+
+---
+
+ ** 用VS2013Cummunity只要配置以下几步
+  ***Increase the width of the Solution Configurations dropdown menu
+  *** Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools > Options > Text Editor > C/C++ > View).
+  *** Turn off Edit & Continue features, you do not need them. (Tools > Options > Debugging > Edit and Continue)
+  *** Turn off Format After Paste. It does weird things sometimes. (VAssistX > Visual Assist X Options > Advanced > Corrections)
+ ** 安装UnrealVS Extension
+ ** 安装Debug辅助
+
+---
+
+h2. "UE4网络框架简介":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/index.html
+
+---
+
+# Actor Replication
+# 地图切换
+
+
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
+ * 服务器和客户端角色权限的区分("Actor Role and RemoteRole":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Roles/index.html)
+  ** ROLE_None:没有网络角色
+  ** ROLE_Authority:服务端
+  ** ROLE_SimulatedProxy:NPC，怪物，其他玩家角色等
+  ** ROLE_AutonomousProxy:客户端当前玩家控制的角色
+
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
+ * Actor的同步控制
+  ** bReplicates:如果Actor有需要同步的属性，必须设置为true
+  ** bAlwaysRelevant:Actor总是和所有客户端相关，将会同步给所有客户端
+  ** bOnlyRelevantToOwner:只同步给Owner
+  ** bNetLoadOnClient:是否需要从地图文件中加载Actor。如果是放置在地图上希望客户端看到的Actor，这项应该设置为true。(一般情况下大部分Actor都需要)
+  ** bTearOff:客户端获得完全控制权
+  ** bReplicateMovement:自动同步Actor的位置给客户端, Pawns默认为true。
+  ** 重载IsNetRelevantFor函数可以自定义网络相关性
+  
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
+ * "Properties":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Properties/index.html
+  ** 同步机制的使用
+   *** 同步不是瞬间发生的，每隔很短的时间会同步一次，所以同步并非立即生效。
+   *** 如果属性在同一帧被反复更改多次，只有最终结果会被同步给客户端。如果最终结果相同，则不会同步给客户端。如血量100->80->50->100，和最初相同都是100，不会发生同步。
+   *** 大概可以理解为，属性更改是在游戏逻辑中发生的。在游戏逻辑之外有个时间间隔很短的定时器，每隔一段时间检测有发生更改的属性并同步给客户端。
+   *** 属性变化时，可以触发回调函数，通过指定ReplicatedUsing=OnRep_xxx来设置回调函数。OnRep_xxx函数必须加上UFUNCTION()以暴露给UE4，并且该函数只会在客户端执行，服务端如果需要执行，必须手动调用
+  ** 可以基于条件、相关性、距离来控制是否同步("Actor Relevancy and Priority":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Relevancy/index.html)
+   *** 基于距离控制是否同步:NetCullDistanceSquared
+   *** 属性的同步控制:默认情况下Properties一旦发生改变就会同步给客户端，可以使用DOREPLIFETIME_CONDITION宏增加一些附加条件。
+    **** COND_InitialOnly:只在初始化时同步
+    **** COND_OwnerOnly:只同步给Owner
+    **** COND_SkipOwner:只同步给非Owner
+    **** COND_SimulatedOnly:只同步给非玩家控制的Actor
+    **** COND_AutonomousOnly: 只同步给玩家控制的Actor
+    **** COND_SimulatedOrPhysics:只同步给有非玩家控制或者物理引擎模拟的Actor
+    **** COND_InitialOrOwner:同步给Owner，其他人只在初始化时同步
+    **** COND_Custom:无特定条件，但是可以切换开关状态通过SetCustomIsActiveOverride
+   *** 上述条件如果还是无法满足，可以自定义同步条件，见宏DOREPLIFETIME_ACTIVE_OVERRIDE。需要注意的是该条件是基于Actor类型的，而不是基于单个客户端的。
+    **** 如果自定义条件变化很频繁的话，将会拖慢系统效率
+    **** 不能基于每个客户端来指定条件
+  ** 详细的同步流程("Detailed Actor Replication Flow":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationFlow/index.html)
+
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
+ * "Components":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html
+  ** 如果想要将组件也同步给客户端，调用SetNetAddressable和SetIsReplicated
+ * 位置同步
+  ** 角色移动组件("Character Movement Component":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/CharacterMovementComponent/index.html)
+   *** 新增一个传送技能的示例
+
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
+ ** "RPCS":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html
+ 
+h2. 地图切换("Travelling in Multiplayer":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Travelling/index.html)
+
+  # 无缝切换
+   ** ServerTravel：（服务器把所有玩家切到一张新地图去，适合开房间那种单地图的游戏）
+   ** ClientTravel：(将某个客户端切换到地图)
+   ** 目前只切换地图，并不会改变玩家坐标，需要进一步研究   
+  # 非无缝切换
+   ** Browse：相当于硬切换，会将所有客户端踢下线
+ 
+h2. 用C++做一个简单的网络Demo
+
+---
+
+# 使用第三人称模板
+# 在人物头顶显示名字
+# 在人物身上播放一个光效
+
+h2. 参考资料
+
+---
+
+# "官方英文手册":https://docs.unrealengine.com/latest/INT/
+# "中文手册":http://unrealchina.org/minibook/
+ ** 非官方提供，渣翻译质量
+ ** 有能力还是建议直接看英文原版
+# 英文电子书
+ ** "Learning.C++.by.Creating.Games.with.UE4.2015":http://pan.baidu.com/s/1pnUMi 提取码:xse6
+  *** "随书code":http://pan.baidu.com/s/1qWv7daW 提取码:bx5i
+# "官方视频教程":https://wiki.unrealengine.com/Videos
+# "DigitalTutors的视频教程":http://www.digitaltutors.com/software/Unreal-Engine-tutorials
+# UE4网络特性的相关参考
+ ** "Network Replication, Using ReplicatedUsing / RepNotify vars":https://wiki.unrealengine.com/Network_Replication,_Using_ReplicatedUsing_/_RepNotify_vars
+ ** "Networking/Replication":https://wiki.unrealengine.com/Networking/Replication
+ ** "NETWORK TIPS AND TRICKS":https://www.unrealengine.com/blog/network-tips-and-tricks
+ ** "FINDING NETWORK-BASED EXPLOITS":https://www.unrealengine.com/blog/finding-network-based-exploits
+ ** "Replication":https://wiki.unrealengine.com/Replication
+ ** "New Blueprint Networking Tutorial Videos Posted":https://forums.unrealengine.com/showthread.php?2956-New-Blueprint-Networking-Tutorial-Videos-Posted&p=20354
+# 编码规范("Coding Standard":https://docs.unrealengine.com/latest/INT/Programming/Development/CodingStandard/index.html)
+# "如何从零开始手动创建一个FPS游戏（可以了解一下FPS模板为我们做了哪些事，我们自己如何实现）？":https://wiki.unrealengine.com/First_Person_Shooter_C%2B%2B_Tutorial#Starting_a_New_Project
+
+h2. 总结
+
+---
+
+<p style="text-align:center;font-size:50px"> Thank You! </p>
