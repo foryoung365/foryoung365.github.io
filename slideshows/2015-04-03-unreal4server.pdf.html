@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>Your Title Here</title>
+   
+   
+
+<style>
+html, body { margin: 0; padding: 0; }
+
+body { font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; }
+
+a:link, a:visited { color: black; }
+
+h1 { font-size: 30pt;  }
+h2 { font-size: 28pt;  }
+h3 { font-size: 25pt;  }
+p, li, dt, dd, td, th { font-size: 18pt; }
+
+pre { font-size: 14pt;  }
+pre.small { font-size: 11pt; }
+
+pre.code {
+        background-color: azure;
+        padding: 5px;
+      }
+     
+ul { list-style-type: square; }    
+   
+.center { text-align: center; }   
+     
+.slide { page-break-after: always;
+         min-height: 100mm;
+         padding: 40px;
+         
+         border: 1px dotted black;
+
+/*      
+  background: -moz-linear-gradient( top, maroon, red);
+*/
+       }
+
+
+
+/*
+for princexml (CSS3 paged media support)
+@page { size: A4 landscape }
+*/
+</style>
+
+</head>
+<body>
+
+<div class="presentation">
+
+<div class='slide '>
+
+<!-- _S9SLIDE_ -->
+<h2>引擎提供的特性</h2>
+<hr />
+<p>概览:(<a href="https://docs.unrealengine.com/latest/INT/Programming/Introduction/index.html">Introduction to C++ Programming in UE4</a>)</p>
+<ol>
+	<li>地图加载</li>
+	<li>碰撞检测</li>
+	<li>蓝图</li>
+	<li>网络连接(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/index.html">Networking &amp; Multiplayer</a>)
+	<ul>
+		<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Server/index.html">CS模型</a></li>
+		<li>Socket连接和传输通道建立（引擎的C/S登录流程）：
+		<ul>
+			<li>World.cpp 3619</li>
+			<li>NMT_Hello</li>
+		</ul></li>
+	</ul></li>
+	<li>同步机制(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Example/index.html">Replication</a>)
+	<ul>
+		<li>位置同步
+		<ul>
+			<li>角色移动组件(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/CharacterMovementComponent/index.html">Character Movement Component</a>)
+			<ul>
+				<li>新增一个传送技能的示例</li>
+			</ul></li>
+		</ul></li>
+		<li>数据同步(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html">Actor Replication</a>)
+		<ul>
+			<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Properties/index.html">Properties</a>
+			<ul>
+				<li>同步不是瞬间发生的，每隔很短的时间会同步一次，所以同步并非立即生效。</li>
+				<li>如果属性在同一帧被反复更改多次，只有最终结果会被同步给客户端。如果最终结果相同，则不会同步给客户端。如血量100&#8594;80&#8594;50&#8594;100，和最初相同都是100，不会发生同步。</li>
+				<li>大概可以理解为，属性更改是在游戏逻辑中发生的。在游戏逻辑之外有个时间间隔很短的定时器，每隔一段时间检测有发生更改的属性并同步给客户端。</li>
+				<li>属性变化时，可以触发回调函数，通过指定ReplicatedUsing=OnRep_xxx来设置回调函数。OnRep_xxx函数必须加上UFUNCTION()以暴露给UE4，并且该函数只会在客户端执行，服务端如果需要执行，必须手动调用</li>
+			</ul></li>
+			<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html">RPCS</a></li>
+		</ul></li>
+	</ul></li>
+</ol>
+
+		<ul>
+			<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html">Components</a>
+			<ul>
+				<li>如果想要将组件也同步给客户端，调用SetNetAddressable和SetIsReplicated</li>
+			</ul></li>
+			<li>可以基于条件、相关性、距离来控制是否同步(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Relevancy/index.html">Actor Relevancy and Priority</a>)
+			<ul>
+				<li>基于距离控制是否同步:NetCullDistanceSquared</li>
+				<li>属性的同步控制:默认情况下Properties一旦发生改变就会同步给客户端，可以使用DOREPLIFETIME_CONDITION宏增加一些附加条件。
+				<ul>
+					<li>COND_InitialOnly:只在初始化时同步
+	<b>*</b> COND_OwnerOnly:只同步给Owner
+	<b>*</b> COND_SkipOwner:只同步给非Owner
+	<b>*</b> COND_SimulatedOnly:只同步给非玩家控制的Actor
+	<b>*</b> COND_AutonomousOnly: 只同步给玩家控制的Actor
+	<b>*</b> COND_SimulatedOrPhysics:只同步给有非玩家控制或者物理引擎模拟的Actor
+	<b>*</b> COND_InitialOrOwner:同步给Owner，其他人只在初始化时同步
+	<b>*</b> COND_Custom:无特定条件，但是可以切换开关状态通过SetCustomIsActiveOverride</li>
+				</ul></li>
+				<li>上述条件如果还是无法满足，可以自定义同步条件，见宏DOREPLIFETIME_ACTIVE_OVERRIDE。需要注意的是该条件是基于Actor类型的，而不是基于单个客户端的。
+				<ul>
+					<li>如果自定义条件变化很频繁的话，将会拖慢系统效率
+	<b>*</b> 不能基于每个客户端来指定条件</li>
+				</ul></li>
+				<li>Actor的同步控制
+				<ul>
+					<li>bReplicates:如果Actor有需要同步的属性，必须设置为true
+	<b>*</b> bAlwaysRelevant:Actor总是和所有客户端相关，将会同步给所有客户端
+	<b>*</b> bOnlyRelevantToOwner:只同步给Owner
+	<b>*</b> bNetLoadOnClient:是否需要从地图文件中加载Actor。如果是放置在地图上希望客户端看到的Actor，这项应该设置为true。(一般情况下大部分Actor都需要)</li>
+					<li>bTearOff:客户端获得完全控制权
+	<b>*</b> bReplicateMovement:自动同步Actor的位置给客户端, Pawns默认为true。
+	<b>*</b> 重载IsNetRelevantFor函数可以自定义网络相关性</li>
+				</ul></li>
+			</ul></li>
+			<li>服务器和客户端角色权限的区分(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Roles/index.html">Actor Role and RemoteRole</a>)
+			<ul>
+				<li>ROLE_None:没有网络角色</li>
+				<li>ROLE_Authority:服务端</li>
+				<li>ROLE_SimulatedProxy:NPC，怪物，其他玩家角色等</li>
+				<li>ROLE_AutonomousProxy:客户端当前玩家控制的角色</li>
+			</ul></li>
+			<li>详细的同步流程(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationFlow/index.html">Detailed Actor Replication Flow</a>)
+			<ul>
+				<li>调试方法:
+				<ul>
+					<li>console command:&#8220;p.NetShowCorrections 1&#8221;</li>
+					<li>console command:&#8220;log LogNetPlayerMovement Verbose&#8221;</li>
+				</ul></li>
+			</ul></li>
+			<li>性能优化(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationPerformance/index.html">Performance and Bandwidth Tips</a>)</li>
+		</ul></li>
+	<li>垃圾回收和内存释放(<a href="https://wiki.unrealengine.com/Garbage_Collection_%26_Dynamic_Memory_Allocation">Garbage Collection &amp; Dynamic Memory Allocation</a>)
+</div>
+<div class='slide '>
+<!-- _S9SLIDE_ -->
+<h2>需要确认或者自己实现的特性</h2>
+<hr />
+<ol style="vertical-align:middle;">
+	<li>多地图
+	<ul>
+		<li>可否支持多地图？
+		<ul>
+			<li>世界地图,类似WOW那种，目前部分特性不支持网游使用(<a href="https://docs.unrealengine.com/latest/INT/Engine/LevelStreaming/WorldBrowser/index.html">World Composition</a>)</li>
+			<li>静态多地图游服可以支持（目前只测试过两个地图，理论上可以支持任意多个）</li>
+		</ul></li>
+		<li>如何切换？(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Travelling/index.html">Travelling in Multiplayer</a>)
+		<ul>
+			<li>无缝切换
+			<ul>
+				<li>ServerTravel：（服务器把所有玩家切到一张新地图去，适合开房间那种单地图的游戏）</li>
+				<li>ClientTravel：(将某个客户端切换到地图)</li>
+				<li>目前只切换地图，并不会改变玩家坐标，需要进一步研究</li>
+			</ul></li>
+			<li>非无缝切换
+			<ul>
+				<li>Browse：相当于硬切换，会将所有客户端踢下线</li>
+			</ul></li>
+		</ul></li>
+		<li>如何创建副本？</li>
+	</ul></li>
+	<li>多线程
+	<ul>
+		<li>是否支持多线程？&#8212;支持，本身游服有十几个线程，游戏逻辑线程是GameThread</li>
+		<li>内置线程池的作用？&#8212;(从源码来看，线程池是用来做一些杂事的，比如SVN源码管理，同步和后台任务等)</li>
+		<li>为何ServerOnly时，线程池只保留一个线程？&#8212;(还未细看，目前猜测是这个线程池对游服基本没用，但是必须有一个线程才能把线程池创建起来)</li>
+		<li><a href="https://wiki.unrealengine.com/Multi-Threading:_How_to_Create_Threads_in_UE4" title="FRunnable">如何使用多线程？</a></li>
+	</ul></li>
+	<li>版本匹配问题
+	<ul>
+		<li>C/S版本不同是否可以登录？
+		<ul>
+			<li>NMT_Hello</li>
+			<li>FNetworkVersion::GetLocalNetworkVersion()</li>
+			<li>FNetworkVersion::IsNetworkCompatible(LocalNetworkVersion, RemoteNetworkVersion)</li>
+		</ul></li>
+	</ul></li>
+	<li>性能问题
+	<ul>
+		<li>最多可承载客户端数量是多少？</li>
+		<li>假设有2000人客户端，同时能承受多少个AI</li>
+		<li>最低性能需求：2000客户端，50000AI</li>
+	</ul></li>
+	<li>数据库连接
+	<ul>
+		<li><a href="https://wiki.unrealengine.com/Linking_Static_Libraries_Using_The_Build_System">如何集成第三方库？</a></li>
+		<li>使用什么第三方库？</li>
+	</ul></li>
+</ol>
+
+</div>
+<div class='slide '>
+<!-- _S9SLIDE_ -->
+<h2>内容示例(ContentExamples)索引</h2>
+<hr />
+<p><a href="https://docs.unrealengine.com/latest/INT/Resources/ContentExamples/index.html">官方文档</a></p>
+<ul>
+	<li>网络相关：Network_Features</li>
+</ul>
+
+</div>
+<div class='slide '>
+<!-- _S9SLIDE_ -->
+<h2>参考资料</h2>
+<hr />
+<ol>
+	<li><a href="https://docs.unrealengine.com/latest/INT/">官方英文手册</a></li>
+	<li><a href="http://unrealchina.org/minibook/">中文手册</a>
+	<ul>
+		<li>非官方提供，渣翻译质量</li>
+		<li>有能力还是建议直接看英文原版</li>
+	</ul></li>
+	<li><a href="https://docs.unrealengine.com/latest/INT/Programming/Development/VisualStudioSetup/index.html">开发环境配置（强烈建议按照推荐设置）</a>
+	<ul>
+		<li>用VS2013Cummunity只要配置以下几步
+  ***　１.Increase the width of the Solution Configurations dropdown menu
+		<ul>
+			<li>Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools &gt; Options &gt; Text Editor &gt; C/C++ &gt; View).</li>
+			<li>Turn off Edit &amp; Continue features, you do not need them. (Tools &gt; Options &gt; Debugging &gt; Edit and Continue)</li>
+			<li>Turn off Format After Paste. It does weird things sometimes. (VAssistX &gt; Visual Assist X Options &gt; Advanced &gt; Corrections)</li>
+		</ul></li>
+	</ul></li>
+	<li>英文电子书
+	<ul>
+		<li><a href="http://pan.baidu.com/s/1pnUMi">Learning.C++.by.Creating.Games.with.UE4.2015</a> 提取码:xse6
+		<ul>
+			<li><a href="http://pan.baidu.com/s/1qWv7daW">随书code</a> 提取码:bx5i</li>
+		</ul></li>
+	</ul></li>
+	<li><a href="https://wiki.unrealengine.com/Videos">官方视频教程</a></li>
+	<li><a href="http://www.digitaltutors.com/software/Unreal-Engine-tutorials">DigitalTutors的视频教程</a></li>
+	<li><a href="https://forums.unrealengine.com/showthread.php?22928-Next-Gen-MMO-Plug-in-for-UE4">老外整理的关于MMO框架、第三方库和UE4网络相关特性的汇总贴</a></li>
+	<li><a href="https://wiki.unrealengine.com/Dedicated_Server_Guide_(Windows_%26_Linux)">独立服务器使用指引</a></li>
+	<li><a href="https://docs.unrealengine.com/latest/INT/Engine/Performance/index.html">性能和配置</a></li>
+	<li>UE4网络特性的相关参考
+	<ul>
+		<li><a href="https://wiki.unrealengine.com/Network_Replication,_Using_ReplicatedUsing_/_RepNotify_vars">Network Replication, Using ReplicatedUsing / RepNotify vars</a></li>
+		<li><a href="https://wiki.unrealengine.com/Networking/Replication">Networking/Replication</a></li>
+		<li><a href="https://www.unrealengine.com/blog/network-tips-and-tricks">NETWORK TIPS AND TRICKS</a></li>
+		<li><a href="https://www.unrealengine.com/blog/finding-network-based-exploits">FINDING NETWORK-BASED EXPLOITS</a></li>
+		<li><a href="https://wiki.unrealengine.com/Replication">Replication</a></li>
+		<li><a href="https://forums.unrealengine.com/showthread.php?2956-New-Blueprint-Networking-Tutorial-Videos-Posted&amp;p=20354">New Blueprint Networking Tutorial Videos Posted</a></li>
+	</ul></li>
+	<li>编码规范(<a href="https://docs.unrealengine.com/latest/INT/Programming/Development/CodingStandard/index.html">Coding Standard</a>)</li>
+	<li><a href="https://wiki.unrealengine.com/First_Person_Shooter_C%2B%2B_Tutorial#Starting_a_New_Project">如何从零开始手动创建一个FPS游戏（可以了解一下FPS模板为我们做了哪些事，我们自己如何实现）？</a></li>
+</ol>
+
+</div>
+<div class='slide '>
+<!-- _S9SLIDE_ -->
+<h2>关于性能测试DEMO</h2>
+<hr />
+<h3 style="vertical-align:middle;">第一阶段</h3>
+<p>制作了一个初级性能测试DEMO，试图模拟这样一个场景：一张大地图上，有很多怪， 玩家分布在地图各处，不停的发生战斗</p>
+<ol>
+	<li>生成10000个角色（无网络连接）</li>
+	<li>角色每隔几秒会发出一个炸弹</li>
+	<li>炸弹有碰撞，会爆炸，爆炸会造成伤害</li>
+</ol>
+<p>DEMO测试结果（全部是PC端测试）：</p>
+<ol>
+	<li>如果不限制广播范围，即10000个角色和炸弹不停的爆炸，将会导致客户端卡死，帧率掉到10帧以下，无法测试服务器情况</li>
+	<li>将广播范围限制在2000米（同屏可以看到的约为25人）
+	<ul>
+		<li>客户端非常流畅，但是服务器卡顿非常严重</li>
+		<li>新生成的炸弹无法及时同步给客户端，导致客户端走路频繁被踢回</li>
+		<li>客户端走进广播范围内无法及时同步角色，过了很久突然出现在身边</li>
+		<li>走到足够远的时候，客户端人物阴影好像出现了问题，半边人物发黑</li>
+		<li>服务器CPU占用率只有25%</li>
+	</ul></li>
+</ol>
+<p>原因猜想：</p>
+<ol>
+	<li>生成炸弹的时间随机范围是10秒，共有10000个角色，因此平均情况是每秒需要处理1000处战斗，最坏情况是每秒要处理10000处战斗</li>
+	<li>从真实玩家操作角度考虑，这里相当于有3-5K的玩家同时游戏（当然这里仅考虑战斗部分，其他游戏业务逻辑并没有计算进去）</li>
+	<li>这个量级可以考虑为已经远远超过目前手机魔域的实际运营的承载量了</li>
+	<li>是不是应该使用更加真实的情况来模拟？</li>
+	<li>这个量级是不是真的已经超过我们现在的承载情况了？</li>
+</ol>
+
+</div>
+<div class='slide '>
+<!-- _S9SLIDE_ -->
+<h2>杂记</h2>
+<hr />
+<ol style="vertical-align:middle;">
+	<li>代码编译完成后编辑器崩溃
+	<ul>
+		<li>一般都是代码问题导致的</li>
+		<li>在构造函数中绑定按键映射</li>
+	</ul></li>
+</ol>
+
+</div>
+<div class='slide '>
+<!-- _S9SLIDE_ -->
+<h2>工作计划</h2>
+<hr />
+<h3 style="vertical-align:middle;">3月30日-4月3日（投入3天）</h3>
+<ol>
+	<li>网络连接框架</li>
+	<li>Socket连接和传输通道建立（引擎的C/S登录流程）</li>
+	<li>引擎的同步机制</li>
+</ol>
+<h3>4月6日-4月10日（投入2天）</h3>
+<ol>
+	<li>服务器多地图支持，地图切换机制</li>
+	<li>引擎的多线程支持</li>
+	<li>版本兼容性（更改消息后旧版本客户端是否可以登录新版游服）</li>
+</ol>
+<h3>4月13-4月17日（投入3天）</h3>
+<ol>
+	<li>详细了解引擎Replication和RPC机制</li>
+	<li>制作了一个初级性能测试DEMO（生成10000个角色（无网络连接），角色每隔几秒会发出一个炸弹，炸弹有碰撞，会爆炸，爆炸会造成伤害）。</li>
+</ol></div>
+
+
+  </div> <!-- presentation -->
+</body>
+</html> 
+

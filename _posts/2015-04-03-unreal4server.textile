@@ -9,7 +9,7 @@ tags: [UnrealEngine4]
 
 h2. 引擎提供的特性
 
-***
+---
 
 概览:("Introduction to C++ Programming in UE4":https://docs.unrealengine.com/latest/INT/Programming/Introduction/index.html)
 
@@ -32,13 +32,36 @@ h2. 引擎提供的特性
    **** 大概可以理解为，属性更改是在游戏逻辑中发生的。在游戏逻辑之外有个时间间隔很短的定时器，每隔一段时间检测有发生更改的属性并同步给客户端。
    **** 属性变化时，可以触发回调函数，通过指定ReplicatedUsing=OnRep_xxx来设置回调函数。OnRep_xxx函数必须加上UFUNCTION()以暴露给UE4，并且该函数只会在客户端执行，服务端如果需要执行，必须手动调用
   *** "RPCS":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html
+   
   *** "Components":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html
+   **** 如果想要将组件也同步给客户端，调用SetNetAddressable和SetIsReplicated
   *** 可以基于条件、相关性、距离来控制是否同步("Actor Relevancy and Priority":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Relevancy/index.html)
    **** 基于距离控制是否同步:NetCullDistanceSquared
+   **** 属性的同步控制:默认情况下Properties一旦发生改变就会同步给客户端，可以使用DOREPLIFETIME_CONDITION宏增加一些附加条件。
+    ***** COND_InitialOnly:只在初始化时同步
+	***** COND_OwnerOnly:只同步给Owner
+	***** COND_SkipOwner:只同步给非Owner
+	***** COND_SimulatedOnly:只同步给非玩家控制的Actor
+	***** COND_AutonomousOnly: 只同步给玩家控制的Actor
+	***** COND_SimulatedOrPhysics:只同步给有非玩家控制或者物理引擎模拟的Actor
+	***** COND_InitialOrOwner:同步给Owner，其他人只在初始化时同步
+	***** COND_Custom:无特定条件，但是可以切换开关状态通过SetCustomIsActiveOverride
+   **** 上述条件如果还是无法满足，可以自定义同步条件，见宏DOREPLIFETIME_ACTIVE_OVERRIDE。需要注意的是该条件是基于Actor类型的，而不是基于单个客户端的。
+    ***** 如果自定义条件变化很频繁的话，将会拖慢系统效率
+	***** 不能基于每个客户端来指定条件
+   **** Actor的同步控制
+    ***** bReplicates:如果Actor有需要同步的属性，必须设置为true
+	***** bAlwaysRelevant:Actor总是和所有客户端相关，将会同步给所有客户端
+	***** bOnlyRelevantToOwner:只同步给Owner
+	***** bNetLoadOnClient:是否需要从地图文件中加载Actor。如果是放置在地图上希望客户端看到的Actor，这项应该设置为true。(一般情况下大部分Actor都需要)
+    ***** bTearOff:客户端获得完全控制权
+	***** bReplicateMovement:自动同步Actor的位置给客户端, Pawns默认为true。
+	***** 重载IsNetRelevantFor函数可以自定义网络相关性
   *** 服务器和客户端角色权限的区分("Actor Role and RemoteRole":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Roles/index.html)
-   **** 服务端:ROLE_Authority
-   **** AI(NPC,怪物等):ROLE_SimulatedProxy
-   **** 客户端（玩家角色）:ROLE_AutonomousProxy
+   **** ROLE_None:没有网络角色
+   **** ROLE_Authority:服务端
+   **** ROLE_SimulatedProxy:NPC，怪物，其他玩家角色等
+   **** ROLE_AutonomousProxy:客户端当前玩家控制的角色
   *** 详细的同步流程("Detailed Actor Replication Flow":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/ReplicationFlow/index.html)
    **** 调试方法:
     ***** console command:"p.NetShowCorrections 1"
@@ -48,7 +71,7 @@ h2. 引擎提供的特性
    
 h2. 需要确认或者自己实现的特性
 
-***
+---
 
 # 多地图
  ** 可否支持多地图？
@@ -66,6 +89,7 @@ h2. 需要确认或者自己实现的特性
  ** 是否支持多线程？--支持，本身游服有十几个线程，游戏逻辑线程是GameThread
  ** 内置线程池的作用？--(从源码来看，线程池是用来做一些杂事的，比如SVN源码管理，同步和后台任务等)
  ** 为何ServerOnly时，线程池只保留一个线程？--(还未细看，目前猜测是这个线程池对游服基本没用，但是必须有一个线程才能把线程池创建起来)
+ ** "如何使用多线程？(FRunnable)":https://wiki.unrealengine.com/Multi-Threading:_How_to_Create_Threads_in_UE4
 # 版本匹配问题
  ** C/S版本不同是否可以登录？
   *** NMT_Hello
@@ -76,12 +100,12 @@ h2. 需要确认或者自己实现的特性
  ** 假设有2000人客户端，同时能承受多少个AI
  ** 最低性能需求：2000客户端，50000AI
 # 数据库连接
- ** 如何集成？
+ ** "如何集成第三方库？":https://wiki.unrealengine.com/Linking_Static_Libraries_Using_The_Build_System
  ** 使用什么第三方库？
  
 h2. 内容示例(ContentExamples)索引
 
-***
+---
 
 "官方文档":https://docs.unrealengine.com/latest/INT/Resources/ContentExamples/index.html
 
@@ -117,12 +141,60 @@ h2. 参考资料
  ** "Replication":https://wiki.unrealengine.com/Replication
  ** "New Blueprint Networking Tutorial Videos Posted":https://forums.unrealengine.com/showthread.php?2956-New-Blueprint-Networking-Tutorial-Videos-Posted&p=20354
 # 编码规范("Coding Standard":https://docs.unrealengine.com/latest/INT/Programming/Development/CodingStandard/index.html)
+# "如何从零开始手动创建一个FPS游戏（可以了解一下FPS模板为我们做了哪些事，我们自己如何实现）？":https://wiki.unrealengine.com/First_Person_Shooter_C%2B%2B_Tutorial#Starting_a_New_Project
+
+h2. 关于性能测试DEMO
+
+---
+
+h3. 第一阶段
+
+制作了一个初级性能测试DEMO，试图模拟这样一个场景：一张大地图上，有很多怪， 玩家分布在地图各处，不停的发生战斗
+
+# 生成10000个角色（无网络连接）
+# 角色每隔几秒会发出一个炸弹
+# 炸弹有碰撞，会爆炸，爆炸会造成伤害
+
+DEMO测试结果（全部是PC端测试）：
+# 如果不限制广播范围，即10000个角色和炸弹不停的爆炸，将会导致客户端卡死，帧率掉到10帧以下，无法测试服务器情况
+# 将广播范围限制在2000米（同屏可以看到的约为25人）
+ ** 客户端非常流畅，但是服务器卡顿非常严重
+ ** 新生成的炸弹无法及时同步给客户端，导致客户端走路频繁被踢回
+ ** 客户端走进广播范围内无法及时同步角色，过了很久突然出现在身边
+ ** 走到足够远的时候，客户端人物阴影好像出现了问题，半边人物发黑
+ ** 服务器CPU占用率只有25%
+ 
+原因猜想：
+# 生成炸弹的时间随机范围是10秒，共有10000个角色，因此平均情况是每秒需要处理1000处战斗，最坏情况是每秒要处理10000处战斗
+# 从真实玩家操作角度考虑，这里相当于有3-5K的玩家同时游戏（当然这里仅考虑战斗部分，其他游戏业务逻辑并没有计算进去）
+# 这个量级可以考虑为已经远远超过目前手机魔域的实际运营的承载量了
+# 是不是应该使用更加真实的情况来模拟？
+# 这个量级是不是真的已经超过我们现在的承载情况了？
+
 
 h2. 杂记
 
-***
+---
 
 # 代码编译完成后编辑器崩溃
  ** 一般都是代码问题导致的
  ** 在构造函数中绑定按键映射
  
+h2. 工作计划
+
+---
+
+h3. 3月30日-4月3日（投入3天）
+
+# 网络连接框架
+# Socket连接和传输通道建立（引擎的C/S登录流程）
+# 引擎的同步机制
+
+h3. 4月6日-4月10日（投入2天）
+# 服务器多地图支持，地图切换机制
+# 引擎的多线程支持
+# 版本兼容性（更改消息后旧版本客户端是否可以登录新版游服）
+ 
+h3. 4月13-4月17日（投入3天）
+# 详细了解引擎Replication和RPC机制
+# 制作了一个初级性能测试DEMO（生成10000个角色（无网络连接），角色每隔几秒会发出一个炸弹，炸弹有碰撞，会爆炸，爆炸会造成伤害）。
