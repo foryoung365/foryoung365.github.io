@@ -1,0 +1,14 @@
+---
+layout: page
+title: 幻灯片
+header: 幻灯片
+group: navigation
+---
+{% include JB/setup %}
+
+<h2>所有幻灯片</h2>
+<ul>
+{% assign pages_list = site.pages %}
+{% assign group = "slideshow" %}
+{% include JB/pages_list %}
+</ul>
