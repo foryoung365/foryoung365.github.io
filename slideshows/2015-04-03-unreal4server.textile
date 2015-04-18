@@ -1,8 +1,5 @@
 title: 虚幻4引擎C++开发简介
-subtitle: 傅砚
-
-footer: Unreal Engine 4
-subfooter: 
+author: 傅砚 程序九部
 
 h2. 主要内容
 
@@ -22,13 +19,13 @@ h2. "开发环境配置":https://docs.unrealengine.com/latest/INT/Programming/De
 
 ---
 
- ** 用VS2013Cummunity只要配置以下几步
-  ***Increase the width of the Solution Configurations dropdown menu
-  *** Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools > Options > Text Editor > C/C++ > View).
-  *** Turn off Edit & Continue features, you do not need them. (Tools > Options > Debugging > Edit and Continue)
-  *** Turn off Format After Paste. It does weird things sometimes. (VAssistX > Visual Assist X Options > Advanced > Corrections)
- ** 安装UnrealVS Extension
- ** 安装Debug辅助
+ * 用VS Community 2013只要配置以下几步:
+  ** Increase the width of the Solution Configurations dropdown menu
+  ** Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools > Options > Text Editor > C/C++ > View).
+  ** Turn off Edit & Continue features, you do not need them. (Tools > Options > Debugging > Edit and Continue)
+  ** Turn off Format After Paste. It does weird things sometimes. (VAssistX > Visual Assist X Options > Advanced > Corrections)
+ * 安装UnrealVS Extension
+ * 安装Debug辅助
 
 ---
 
@@ -93,8 +90,80 @@ h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networ
 
 ---
 
+h3. 如何使用Properties Replication
+  
+h4. ReplicatedActor.h
+
+{% code lang=c engine=sh %}
+#pragma once
+#include "Core.h"
+#include "ReplicatedActor.generated.h"
+ 
+UCLASS()
+class AReplicatedActor : public AActor
+{
+    GENERATED_UCLASS_BODY()
+ 
+public:
+ 
+    void ServerSetFlag();
+ 
+    /** A Replicated Boolean Flag */
+    UPROPERTY(ReplicatedUsing=OnRep_Flag)
+    uint32 bFlag:1;
+ 
+    /** A Replicated Array Of Integers */
+    UPROPERTY(Replicated)
+    TArray<uint32> IntegerArray;
+ 
+private:
+ 
+    UFUNCTION()
+    void OnRep_Flag();
+};
+{% end %}
+  
+h4. ReplicatedActor.cpp
+
+{% code lang=c engine=sh %} 
+#include "ReplicatedActor.h"
+#include "UnrealNetwork.h"
+
+AReplicatedActor::AReplicatedActor(const class FPostConstructInitializeProperties& PCIP)
+: Super(PCIP)
+{
+    bReplicates = true;
+}
+ 
+void AReplicatedActor::ServerSetFlag()
+{
+    if (HasAuthority() && !bFlag) // Ensure Role == ROLE_Authority
+    {
+        bFlag = true;
+        OnRep_Flag(); // Run locally since we are the server this won't be called automatically.
+    }
+}
+ 
+void AReplicatedActor::OnRep_Flag()
+{
+    // When this is called, bFlag already contains the new value. This
+    // just notifies you when it changes.
+}
+ 
+void AReplicatedActor::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+    DOREPLIFETIME(AReplicatedActor, bFlag);
+    DOREPLIFETIME(AReplicatedActor, IntegerArray);
+}
+{% end %}
+
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
  * "Components":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html
   ** 如果想要将组件也同步给客户端，调用SetNetAddressable和SetIsReplicated
+ * 其他UObject:重载UObject::IsSupportedForNetworking()并实现GetLifetimeReplicatedProps()。在Actor中实现 AActor::ReplicateSubobjects() 
  * 位置同步
   ** 角色移动组件("Character Movement Component":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/CharacterMovementComponent/index.html)
    *** 新增一个传送技能的示例
@@ -103,7 +172,83 @@ h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networ
 
 ---
 
- ** "RPCS":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html
+ * "RPCS":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html
+  ** 和原先服务器客户端逻辑的区别：火球术
+  ** UFUNCTION(Client):由服务器（ROLE_Authority）发起，只在有这个Actor控制权的客户端（ROLE_AutonomousProxy）执行的函数
+  ** UFUNCTION(Server, WithValidation):由客户端（ROLE_AutonomousProxy）发起，只在服务器（ROLE_Authority）执行的函数
+  ** UFUNCTION(NetMulticast):由服务器（ROLE_Authority）发起，在所有客户端执行的函数
+  ** Reliable vs Unreliable:Unreliable的RPC在网络情况较差时，有可能不被执行。
+  
+h2. "Actor Replication":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html
+
+---
+
+h3. RPC的使用
+ 
+h4. ReplicatedActor.h
+
+{% code lang=c engine=sh %} 
+#pragma once
+#include "Core.h"
+#include "ReplicatedActor.generated.h"
+ 
+UCLASS()
+class AReplicatedActor : public AActor
+{
+    GENERATED_UCLASS_BODY()
+ 
+public:
+ 
+// NOTE: all functions can have arguments, they will be replicated automatically over the network.
+// NOTE: UObject based classes (or derivatives) should be passed by pointer (*) and will correctly
+// address the version of that object on the receiving client or server (unless that object is not
+// replicated, in which case the pointer will be NULL).
+ 
+    UFUNCTION(Server, Reliable, WithValidation)
+    void Server_ReliableFunctionCallThatRunsOnServer();
+ 
+    UFUNCTION(Client, Reliable)
+    void Client_ReliableFunctionCallThatRunsOnOwningClientOnly();
+ 
+    UFUNCTION(NetMulticast, Unreliable)
+    void Client_UnreliableFunctionCallThatRunsOnAllClients();
+};
+{% end %} 
+
+ReplicatedActor.cpp:
+
+{% code lang=c engine=sh %} 
+#include "ReplicatedActor.h"
+#include "UnrealNetwork.h"
+
+AReplicatedActor::AReplicatedActor(const class FPostConstructInitializeProperties& PCIP)
+: Super(PCIP)
+{
+    bReplicates = true;
+}
+ 
+void AReplicatedActor::Server_ReliableFunctionCallThatRunsOnServer_Implementation()
+{
+    // Do something here that modifies game state.
+}
+ 
+bool AReplicatedActor::Server_ReliableFunctionCallThatRunsOnServer_Validate()
+{
+   // Optionally validate the request and return false if the function should not be run.
+   return true;
+}
+ 
+void AReplicatedActor::Client_ReliableFunctionCallThatRunsOnOwningClientOnly()
+{
+   // Do something here to affect the client. This method was called by the server ONLY.
+}
+ 
+void AReplicatedActor::Client_UnreliableFunctionCallThatRunsOnAllClients()
+{
+   // Do something here to affect the client. This method was called by the server ONLY.
+}
+
+{% end %} 
  
 h2. 地图切换("Travelling in Multiplayer":https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Travelling/index.html)
 

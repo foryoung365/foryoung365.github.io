@@ -4,58 +4,62 @@
 <!--[if IE 8]>    <html class="no-js ie8" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!-->  <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	
-	<title>虚幻4引擎C++开发简介</title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        
+        <title>虚幻4引擎C++开发简介</title>
 
-	<meta name="generator" content="Slide Show (S9)">
-	<meta name="author" content="Your Name Here">
-	<meta name="viewport" content="width=1024, user-scalable=no">
+        <meta name="generator" content="Slide Show (S9)">
+        <meta name="author" content="傅砚 程序九部">
+        <meta name="viewport" content="width=1024, user-scalable=no">
 
-	<!-- Core and extension CSS files -->
-	<link rel="stylesheet" href="core/deck.core.css">
-	<link rel="stylesheet" href="extensions/goto/deck.goto.css">
-	<link rel="stylesheet" href="extensions/menu/deck.menu.css">
-	<link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
-	<link rel="stylesheet" href="extensions/status/deck.status.css">
-	<link rel="stylesheet" href="extensions/hash/deck.hash.css">
-	
-	<!-- Theme CSS files (menu swaps these out) -->
-	<link rel="stylesheet" id="style-theme-link" href="themes/style/web-2.0.css">
-	<link rel="stylesheet" id="transition-theme-link" href="themes/transition/horizontal-slide.css">
-	
-	<!-- Custom CSS just for this page -->
-	<!-- GB: changed fixed name to variable -->
-	<link rel="stylesheet"  href="2015-04-03-unreal4server.css">
-	
-	<script src="lib/modernizr.custom.js"></script>
+        <!-- Core and extension CSS files -->
+        <link rel="stylesheet" href="core/deck.core.css">
+        <link rel="stylesheet" href="extensions/goto/deck.goto.css">
+        <link rel="stylesheet" href="extensions/menu/deck.menu.css">
+        <link rel="stylesheet" href="extensions/navigation/deck.navigation.css">
+        <link rel="stylesheet" href="extensions/status/deck.status.css">
+        <link rel="stylesheet" href="extensions/hash/deck.hash.css">
+        
+        <!-- Theme CSS files (menu swaps these out) -->
+        <link rel="stylesheet" id="style-theme-link" href="themes/style/web-2.0.css">
+        <link rel="stylesheet" id="transition-theme-link" href="themes/transition/horizontal-slide.css">
+
+        <!-- SyntaxHighlighter CSS -->
+        <link rel="stylesheet" href="syntaxhighlighter/styles/shCore.css">
+        <link rel="stylesheet" href="syntaxhighlighter/styles/shThemeDefault.css">
+
+        <!-- Custom CSS just for this page -->
+        <!-- GB: changed fixed name to variable -->
+        <link rel="stylesheet"  href="2015-04-03-unreal4server.css">
+        
+        <script src="lib/modernizr.custom.js"></script>
 </head>
 
 <body class="deck-container">
 
 <div class="theme-menu">
-	<h2>Themes</h2>
-	
-	<label for="style-themes">Style:</label>
-	<select id="style-themes">
-		<option selected value="themes/style/web-2.0.css">Web 2.0</option>
-		<option value="themes/style/swiss.css">Swiss</option>
-		<option value="themes/style/neon.css">Neon</option>
-		<option value="">None</option>
-	</select>
-	
-	<label for="transition-themes">Transition:</label>
-	<select id="transition-themes">
-		<option selected value="themes/transition/horizontal-slide.css">Horizontal Slide</option>
-		<option value="themes/transition/vertical-slide.css">Vertical Slide</option>
-		<option value="themes/transition/fade.css">Fade</option>
-		<option value="">None</option>
-	</select>
+        <h2>Themes</h2>
+        
+        <label for="style-themes">Style:</label>
+        <select id="style-themes">
+                <option selected value="themes/style/web-2.0.css">Web 2.0</option>
+                <option value="themes/style/swiss.css">Swiss</option>
+                <option value="themes/style/neon.css">Neon</option>
+                <option value="">None</option>
+        </select>
+        
+        <label for="transition-themes">Transition:</label>
+        <select id="transition-themes">
+                <option selected value="themes/transition/horizontal-slide.css">Horizontal Slide</option>
+                <option value="themes/transition/vertical-slide.css">Vertical Slide</option>
+                <option value="themes/transition/fade.css">Fade</option>
+                <option value="">None</option>
+        </select>
 </div>
 
 <section class="slide" id="title-slide">
-	<h1>虚幻4引擎C++开发简介</h1>
+        <h1>虚幻4引擎C++开发简介</h1>
 </section>
 
 <!-- note: assumes no header (breaking slides w/ SLIDE directive) -->
@@ -88,18 +92,18 @@
     <!-- _S9SLIDE_ -->
 <h2><a href="https://docs.unrealengine.com/latest/INT/Programming/Development/VisualStudioSetup/index.html">开发环境配置</a></h2>
 <hr />
-
-	<ul style="vertical-align:middle;">
-		<li>用VS2013Cummunity只要配置以下几步
-  ***Increase the width of the Solution Configurations dropdown menu
-		<ul>
-			<li>Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools &gt; Options &gt; Text Editor &gt; C/C++ &gt; View).</li>
-			<li>Turn off Edit &amp; Continue features, you do not need them. (Tools &gt; Options &gt; Debugging &gt; Edit and Continue)</li>
-			<li>Turn off Format After Paste. It does weird things sometimes. (VAssistX &gt; Visual Assist X Options &gt; Advanced &gt; Corrections)</li>
-		</ul></li>
-		<li>安装UnrealVS Extension</li>
-		<li>安装Debug辅助</li>
-	</ul><hr />
+<ul style="vertical-align:middle;">
+	<li>用VS Community 2013只要配置以下几步:
+	<ul>
+		<li>Increase the width of the Solution Configurations dropdown menu</li>
+		<li>Turn off Show Inactive Blocks. If you do not, many chunks of code may appear grayed out in the text editor. (Tools &gt; Options &gt; Text Editor &gt; C/C++ &gt; View).</li>
+		<li>Turn off Edit &amp; Continue features, you do not need them. (Tools &gt; Options &gt; Debugging &gt; Edit and Continue)</li>
+		<li>Turn off Format After Paste. It does weird things sometimes. (VAssistX &gt; Visual Assist X Options &gt; Advanced &gt; Corrections)</li>
+	</ul></li>
+	<li>安装UnrealVS Extension</li>
+	<li>安装Debug辅助</li>
+</ul>
+<hr />
 
 
   </section>
@@ -198,11 +202,89 @@
     <!-- _S9SLIDE_ -->
 <h2><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html">Actor Replication</a></h2>
 <hr />
+<h3 style="vertical-align:middle;">如何使用Properties Replication</h3>
+<h4>ReplicatedActor.h</h4>
+<!-- begin code{:lang=>"c", :engine=>"sh"} -->
+<div class='code'><pre class='brush: c toolbar: false gutter: true'>
+#pragma once
+#include &quot;Core.h&quot;
+#include &quot;ReplicatedActor.generated.h&quot;
+ 
+UCLASS()
+class AReplicatedActor : public AActor
+{
+    GENERATED_UCLASS_BODY()
+ 
+public:
+ 
+    void ServerSetFlag();
+ 
+    /** A Replicated Boolean Flag */
+    UPROPERTY(ReplicatedUsing=OnRep_Flag)
+    uint32 bFlag:1;
+ 
+    /** A Replicated Array Of Integers */
+    UPROPERTY(Replicated)
+    TArray&lt;uint32&gt; IntegerArray;
+ 
+private:
+ 
+    UFUNCTION()
+    void OnRep_Flag();
+};
+</pre></div>
+<!-- end code -->
+
+
+<h4>ReplicatedActor.cpp</h4>
+<!-- begin code{:lang=>"c", :engine=>"sh"} -->
+<div class='code'><pre class='brush: c toolbar: false gutter: true'> 
+#include &quot;ReplicatedActor.h&quot;
+#include &quot;UnrealNetwork.h&quot;
+
+AReplicatedActor::AReplicatedActor(const class FPostConstructInitializeProperties&amp; PCIP)
+: Super(PCIP)
+{
+    bReplicates = true;
+}
+ 
+void AReplicatedActor::ServerSetFlag()
+{
+    if (HasAuthority() &amp;&amp; !bFlag) // Ensure Role == ROLE_Authority
+    {
+        bFlag = true;
+        OnRep_Flag(); // Run locally since we are the server this won&#39;t be called automatically.
+    }
+}
+ 
+void AReplicatedActor::OnRep_Flag()
+{
+    // When this is called, bFlag already contains the new value. This
+    // just notifies you when it changes.
+}
+ 
+void AReplicatedActor::GetLifetimeReplicatedProps(TArray&lt; FLifetimeProperty &gt; &amp; OutLifetimeProps) const
+{
+    DOREPLIFETIME(AReplicatedActor, bFlag);
+    DOREPLIFETIME(AReplicatedActor, IntegerArray);
+}
+</pre></div>
+<!-- end code -->
+
+
+
+  </section>
+
+  <section class="slide" id="9">
+    <!-- _S9SLIDE_ -->
+<h2><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html">Actor Replication</a></h2>
+<hr />
 <ul style="vertical-align:middle;">
 	<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/Components/index.html">Components</a>
 	<ul>
 		<li>如果想要将组件也同步给客户端，调用SetNetAddressable和SetIsReplicated</li>
 	</ul></li>
+	<li>其他UObject:重载UObject::IsSupportedForNetworking()并实现GetLifetimeReplicatedProps()。在Actor中实现 AActor::ReplicateSubobjects()</li>
 	<li>位置同步
 	<ul>
 		<li>角色移动组件(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/CharacterMovementComponent/index.html">Character Movement Component</a>)
@@ -215,18 +297,104 @@
 
   </section>
 
-  <section class="slide" id="9">
+  <section class="slide" id="10">
     <!-- _S9SLIDE_ -->
 <h2><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html">Actor Replication</a></h2>
 <hr />
+<ul style="vertical-align:middle;">
+	<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html">RPCS</a>
+	<ul>
+		<li>和原先服务器客户端逻辑的区别：火球术</li>
+		<li><acronym title="Client">UFUNCTION</acronym>:由服务器（ROLE_Authority）发起，只在有这个Actor控制权的客户端（ROLE_AutonomousProxy）执行的函数</li>
+		<li><acronym title="Server, WithValidation">UFUNCTION</acronym>:由客户端（ROLE_AutonomousProxy）发起，只在服务器（ROLE_Authority）执行的函数</li>
+		<li><acronym title="NetMulticast">UFUNCTION</acronym>:由服务器（ROLE_Authority）发起，在所有客户端执行的函数</li>
+		<li>Reliable vs Unreliable:Unreliable的RPC在网络情况较差时，有可能不被执行。</li>
+	</ul></li>
+</ul>
 
-	<ul style="vertical-align:middle;">
-		<li><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/RPCs/index.html">RPCS</a></li>
-	</ul>
 
   </section>
 
-  <section class="slide" id="10">
+  <section class="slide" id="11">
+    <!-- _S9SLIDE_ -->
+<h2><a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Actors/index.html">Actor Replication</a></h2>
+<hr />
+<h3 style="vertical-align:middle;">RPC的使用</h3>
+<h4>ReplicatedActor.h</h4>
+<!-- begin code{:lang=>"c", :engine=>"sh"} -->
+<div class='code'><pre class='brush: c toolbar: false gutter: true'> 
+#pragma once
+#include &quot;Core.h&quot;
+#include &quot;ReplicatedActor.generated.h&quot;
+ 
+UCLASS()
+class AReplicatedActor : public AActor
+{
+    GENERATED_UCLASS_BODY()
+ 
+public:
+ 
+// NOTE: all functions can have arguments, they will be replicated automatically over the network.
+// NOTE: UObject based classes (or derivatives) should be passed by pointer (*) and will correctly
+// address the version of that object on the receiving client or server (unless that object is not
+// replicated, in which case the pointer will be NULL).
+ 
+    UFUNCTION(Server, Reliable, WithValidation)
+    void Server_ReliableFunctionCallThatRunsOnServer();
+ 
+    UFUNCTION(Client, Reliable)
+    void Client_ReliableFunctionCallThatRunsOnOwningClientOnly();
+ 
+    UFUNCTION(NetMulticast, Unreliable)
+    void Client_UnreliableFunctionCallThatRunsOnAllClients();
+};
+</pre></div>
+<!-- end code -->
+
+
+<p>ReplicatedActor.cpp:</p>
+<!-- begin code{:lang=>"c", :engine=>"sh"} -->
+<div class='code'><pre class='brush: c toolbar: false gutter: true'> 
+#include &quot;ReplicatedActor.h&quot;
+#include &quot;UnrealNetwork.h&quot;
+
+AReplicatedActor::AReplicatedActor(const class FPostConstructInitializeProperties&amp; PCIP)
+: Super(PCIP)
+{
+    bReplicates = true;
+}
+ 
+void AReplicatedActor::Server_ReliableFunctionCallThatRunsOnServer_Implementation()
+{
+    // Do something here that modifies game state.
+}
+ 
+bool AReplicatedActor::Server_ReliableFunctionCallThatRunsOnServer_Validate()
+{
+   // Optionally validate the request and return false if the function should not be run.
+   return true;
+}
+ 
+void AReplicatedActor::Client_ReliableFunctionCallThatRunsOnOwningClientOnly()
+{
+   // Do something here to affect the client. This method was called by the server ONLY.
+}
+ 
+void AReplicatedActor::Client_UnreliableFunctionCallThatRunsOnAllClients()
+{
+   // Do something here to affect the client. This method was called by the server ONLY.
+}
+
+</pre></div>
+<!-- end code -->
+
+
+
+
+
+  </section>
+
+  <section class="slide" id="12">
     <!-- _S9SLIDE_ -->
 <h2>地图切换(<a href="https://docs.unrealengine.com/latest/INT/Gameplay/Networking/Travelling/index.html">Travelling in Multiplayer</a>)</h2>
 <ol>
@@ -245,7 +413,7 @@
 
   </section>
 
-  <section class="slide" id="11">
+  <section class="slide" id="13">
     <!-- _S9SLIDE_ -->
 <h2>用C++做一个简单的网络Demo</h2>
 <hr />
@@ -258,7 +426,7 @@
 
   </section>
 
-  <section class="slide" id="12">
+  <section class="slide" id="14">
     <!-- _S9SLIDE_ -->
 <h2>参考资料</h2>
 <hr />
@@ -294,7 +462,7 @@
 
   </section>
 
-  <section class="slide" id="13">
+  <section class="slide" id="15">
     <!-- _S9SLIDE_ -->
 <h2>总结</h2>
 <hr />
@@ -307,23 +475,20 @@
 <a href="#" class="deck-next-link" title="Next">&#8594;</a>
 
 <p class="deck-status">
-	<span class="deck-status-current"></span>
-	/
-	<span class="deck-status-total"></span>
+        <span class="deck-status-current"></span>
+        /
+        <span class="deck-status-total"></span>
 </p>
 
 <form action="." method="get" class="goto-form">
-	<label for="goto-slide">Go to slide:</label>
-	<input type="number" name="slidenum" id="goto-slide">
-	<input type="submit" value="Go">
+        <label for="goto-slide">Go to slide:</label>
+        <input type="number" name="slidenum" id="goto-slide">
+        <input type="submit" value="Go">
 </form>
 
 <a href="." title="Permalink to this slide" class="deck-permalink">#</a>
 
-
-  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="lib/jquery-1.6.4.min.js"><\/script>')</script>
+<script src="lib/jquery-1.6.4.min.js"></script>
 
 <!-- Deck Core and extensions -->
 <script src="core/deck.core.js"></script>
@@ -333,20 +498,27 @@
 <script src="extensions/navigation/deck.navigation.js"></script>
 <script src="extensions/hash/deck.hash.js"></script>
 
+<!-- SyntaxHighlighter JS -->
+<script src="syntaxhighlighter/scripts/shCore.js"></script>
+<script src="syntaxhighlighter/scripts/shBrushCpp.js"></script>
+
 <!-- Specific to this page -->
 <!-- GB: adding introduction.js inline -->
 <script>
 $(function() {
-	// Deck initialization
-	$.deck('.slide');
-	
-	$('#style-themes').change(function() {
-		$('#style-theme-link').attr('href', $(this).val());
-	});
-	
-	$('#transition-themes').change(function() {
-		$('#transition-theme-link').attr('href', $(this).val());
-	});
+        // Deck initialization
+        $.deck('.slide');
+        
+        $('#style-themes').change(function() {
+                $('#style-theme-link').attr('href', $(this).val());
+        });
+        
+        $('#transition-themes').change(function() {
+                $('#transition-theme-link').attr('href', $(this).val());
+        });
+
+        // SyntaxHighlighter initialization
+        SyntaxHighlighter.all();
 });
 
 
