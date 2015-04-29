@@ -73,7 +73,7 @@ h2. 需要确认或者自己实现的特性
 
 ---
 
-# 多地图
+* 多地图
  ** 可否支持多地图？
   *** 世界地图,类似WOW那种，目前部分特性不支持网游使用("World Composition":https://docs.unrealengine.com/latest/INT/Engine/LevelStreaming/WorldBrowser/index.html)
   *** 静态多地图游服可以支持（目前只测试过两个地图，理论上可以支持任意多个）
@@ -84,22 +84,50 @@ h2. 需要确认或者自己实现的特性
    **** 目前只切换地图，并不会改变玩家坐标，需要进一步研究   
   *** 非无缝切换
    **** Browse：相当于硬切换，会将所有客户端踢下线
- ** 如何创建副本？
-# 多线程
+ ** 如何创建副本？--可以通过使用LevelStreamingKismet来添加副本
+
+pre.. 
+FName ATestLevelsCharacter::MakePackageNameByOrder(uint32 nOrder)
+{
+	FString InstanceUniqueName;
+	InstanceUniqueName.AppendInt(nOrder);
+	FString InstanceShortPackageName = GetWorld()->StreamingLevelsPrefix + FPackageName::GetShortName(InstanceUniqueName);
+	FString InstancePackagePath = FPackageName::GetLongPackagePath(TEXT("/Game/ThirdPerson/Maps/Map1")) + TEXT("/");
+	FName	InstanceUniquePackageName = FName(*(InstancePackagePath + InstanceShortPackageName));
+	return InstanceUniquePackageName;
+}
+
+pre.. 
+FName	InstanceUniquePackageName = this->MakePackageNameByOrder(nOrder);
+// check if instance name is unique among existing streaming level objects
+const bool bUniqueName = (GetWorld()->StreamingLevels.IndexOfByPredicate(ULevelStreaming::FPackageNameMatcher(InstanceUniquePackageName)) == INDEX_NONE);
+ULevelStreamingKismet* StreamingLevel = static_cast<ULevelStreamingKismet*>(StaticConstructObject(ULevelStreamingKismet::StaticClass(), GetWorld(), NAME_None, RF_NoFlags, NULL));
+StreamingLevel->bShouldBeLoaded = true;
+StreamingLevel->bShouldBeVisible = true;
+StreamingLevel->bShouldBlockOnLoad = false;
+StreamingLevel->bInitiallyLoaded = true;
+StreamingLevel->bInitiallyVisible = true;
+StreamingLevel->LevelTransform.SetLocation(FVector(2000 * nOrder, 0, 0));
+StreamingLevel->PackageNameToLoad = TEXT("/Game/ThirdPerson/Maps/Map1");
+StreamingLevel->SetWorldAssetByPackageName(InstanceUniquePackageName);
+GetWorld()->StreamingLevels.Add(StreamingLevel);
+
+p. 
+* 多线程
  ** 是否支持多线程？--支持，本身游服有十几个线程，游戏逻辑线程是GameThread
  ** 内置线程池的作用？--(从源码来看，线程池是用来做一些杂事的，比如SVN源码管理，同步和后台任务等)
  ** 为何ServerOnly时，线程池只保留一个线程？--(还未细看，目前猜测是这个线程池对游服基本没用，但是必须有一个线程才能把线程池创建起来)
  ** "如何使用多线程？(FRunnable)":https://wiki.unrealengine.com/Multi-Threading:_How_to_Create_Threads_in_UE4
-# 版本匹配问题
+* 版本匹配问题
  ** C/S版本不同是否可以登录？
   *** NMT_Hello
   *** FNetworkVersion::GetLocalNetworkVersion()
   *** FNetworkVersion::IsNetworkCompatible(LocalNetworkVersion, RemoteNetworkVersion)
-# 性能问题
+* 性能问题
  ** 最多可承载客户端数量是多少？
  ** 假设有2000人客户端，同时能承受多少个AI
  ** 最低性能需求：2000客户端，50000AI
-# 数据库连接
+* 数据库连接
  ** "如何集成第三方库？":https://wiki.unrealengine.com/Linking_Static_Libraries_Using_The_Build_System
  ** 使用什么第三方库？
  
@@ -142,6 +170,7 @@ h2. 参考资料
  ** "New Blueprint Networking Tutorial Videos Posted":https://forums.unrealengine.com/showthread.php?2956-New-Blueprint-Networking-Tutorial-Videos-Posted&p=20354
 # 编码规范("Coding Standard":https://docs.unrealengine.com/latest/INT/Programming/Development/CodingStandard/index.html)
 # "如何从零开始手动创建一个FPS游戏（可以了解一下FPS模板为我们做了哪些事，我们自己如何实现）？":https://wiki.unrealengine.com/First_Person_Shooter_C%2B%2B_Tutorial#Starting_a_New_Project
+# "C++ Code官方WIKI":https://wiki.unrealengine.com/Category:Code
 
 h2. 关于性能测试DEMO
 
@@ -195,6 +224,13 @@ h3. 4月6日-4月10日（投入2天）
 # 引擎的多线程支持
 # 版本兼容性（更改消息后旧版本客户端是否可以登录新版游服）
  
-h3. 4月13-4月17日（投入3天）
+h3. 4月13日-4月17日（投入3天）
 # 详细了解引擎Replication和RPC机制
 # 制作了一个初级性能测试DEMO（生成10000个角色（无网络连接），角色每隔几秒会发出一个炸弹，炸弹有碰撞，会爆炸，爆炸会造成伤害）。
+
+h3. 4月20日-4月24日(投入2天)
+# 副本地图动态创建和删除
+# 将demo修改为只生成10000个角色（无连接）。没有任何动作，服务器没有其他业务，本地延迟在300-500ms，如果人数降到1000人则非常流畅。并且服务器本身收发包和游戏业务在同一个线程。从目前测试结果来看，unreal4的服务器无法满足作为mmo服务器的要求，需要自己实现一套服务器框架。
+
+h3. 4月27日-4月30日（投入2天）
+# 研究如何unreal4的移植导航网格部分供服务器使用
