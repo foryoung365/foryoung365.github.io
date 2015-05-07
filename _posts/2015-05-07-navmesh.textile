@@ -1,0 +1,125 @@
+---
+layout: post
+title: "导航网格学习笔记"
+description: "导航网格学习笔记"
+category: Development
+tags: [GameServer]
+---
+{% include JB/setup %}
+
+h2. 相关资料
+
+---
+
+# 导航网格开源库:"RecastNavgation":https://github.com/memononen/recastnavigation
+# 一个基于C#的AI库，包含UNITY 3D插件:"CAINav":http://www.critterai.org/projects/cainav/
+# 开源服务端框架："kbengine":https://github.com/kbengine/kbengine
+# WOW服务端模拟器:"TrinityCore":http://www.trinitycore.org/
+
+RecastNavgation是业界比较知名的导航网格生成和寻路的开源库了，大名鼎鼎的UE4和Unity3D游戏引擎都有基于Recast的实现，而上述两个开源服务端框架中，导航网格也是基于Recast的。因此，Recast应该是已经被证明可靠的导航网格LIB。
+在CAINav官网看到有比较详尽的导航网格文档，因此打算深入了解一下导航网格的原理和相关算法，本篇就是学习过程中记录的学习笔记。
+
+h2. "多边形网格(Polygon Mesh)":http://en.wikipedia.org/wiki/Polygon_mesh
+
+---
+
+多边形网格（Polygon mesh）是三维计算机图形学中表示多面体形状的顶点与多边形的集合，它也叫作非结构网格。这些网格通常由三角形、四边形或者其它的简单凸多边形组成，这样可以简化渲染过程。但是，网格也可以包括带有空洞的普通多边形组成的物体。
+
+h2. 导航网格的生成
+
+---
+
+# "高度图介绍":http://www.critterai.org/projects/nmgen_study/heightfields.html
+ ## 基本高度图结构
+  ### 通过BoundsMin和BoundsMax确定3维空间的包围盒区域范围
+  ### 使用固定的宽度和深度将包围盒切分为小格
+ ## 高度Span
+  ### 实体Span和开放Span
+  ### 特殊的开放Span：底-下方的实体Span的最大值 顶-上方的实体Span的最小值
+ ## 邻居的搜索
+  ### 距离太远的Span，即使在相邻位上，也不会被认为是邻居。只有开放式高度图实现才提供邻居Span的搜索。
+  ### 轴向邻居按左(-1,0)->上(0,1)->右(1,0)->下(0,-1)的顺时针顺序，索引分别为0，1，2，3
+  ### 对角邻居没有标准的索引搜索顺序，一般也采用顺时针顺序搜索轴向邻居时，附带搜索对应的对角邻居
+# "高层次处理":http://www.critterai.org/projects/nmgen_study/overview.html
+ ## 体元化：从来源几何图形创建一个实体高度图
+ ## 生成区域：检测实体高度图顶表面区域，并将其分割为连续的Span。
+ ## 生成轮廓：检测区域的轮廓并将其转换为简单多边形。
+ ## 生成多边形网格：将轮廓细分为凸多边形。
+ ## 生成细节网格(Detailed Mesh)：将网格三角型化并且添加高度细节。
+# "配置参数":http://www.critterai.org/projects/nmgen_study/config.html
+ ## CellSize
+  ### 限制: >0
+  ### 描述：采样来源几何体时使用的宽度和深度分辨率值。Cell Columns的宽度和深度组成了体元域。CellSize的值越小，生成的网格越接近源几何体，但是需要更多的处理能力和内存开销。
+  ### 交互：这是核心配置值，和几乎所有其他参数都有交互
+ ## CellHeight
+  ### 限制: >0
+  ### 描述:对源几何体采样时使用的高度分辨率。体元域中体元的高度。CellHeight的值越小，最终的网格越接近源几何体，但是需要更多的处理能力（不过不会显著增加内存开销）。
+  ### 这是一个核心配置值影响几乎所有的其他参数。minTraversableHeight, maxTraversableStep, contourMaxDeviation必须比这个值更大才能保证功能正确。maxTraversableStep特别容易受这个参数值影响。
+ ## minTraversableHeight
+  ### 限制: > 0
+  ### 描述: 地板和天花板之间能够通行的最小高度。用于空中悬挂/漂浮阻碍的检测。也被认为是最大的Agent高度。
+  ### 交互: 该值必须大于等于CellHeight的两倍，才能获得较好的结果。
+ ## maxTraversableStep
+  ### 限制: >= 0
+  ### 描述: 代表最大可通行的突起高度。防止高度上的微小误差导致的不恰当阻碍。
+  ### 交互: maxTraversableStep应该大于CellHeight的两倍。否则体元域的分辨率可能无法满足检测可通行突起的高度的要求。突起可以被合并，有效的将他们的步长加倍，对于楼梯这个问题尤其突出。
+ ## maxTraversableSlope
+  ### 限制: >= 0
+  ### 描述: 可通行的最大坡度。
+  ### 交互: 无
+ ## clipLedges
+  ### 限制: 无
+  ### 描述: 表示是否突起应该被认为是不可通行的。突起是拥有一个或多个不能从体元顶部落到另一个体元顶部的邻居的无法通行的体元。
+  ### 交互: 突起剪裁在网格生成过程的初期执行。这将导致突起体元被后来的算法标记为障碍物。例如，如果traversableAreaBorderSize>0，那么剪裁过的突起周围的边缘将比其他区域更厚。因此，当使用了traversableAreaBorderSize特性时，clipLedges经常是不必要的。
+ ## traversableAreaBorderSize
+  ### 限制: >= 0
+  ### 描述: 代表网格距离障碍物的最小距离。通常该值被设置为Agent的最大包围半径，以利用网格作为导航决断。
+  ### 交互: 该值必须大于CellSize，才会生效。如果启用了clipLedges，实际边界会比突起更大。如果smoothingTreshold > 0，实际边界会更大。
+ ## smoothingThreshold
+  ### 限制: >= 0
+  ### 描述: 根据距离产生区域时，执行平滑的数量。该值影响区域的形成和边缘检测。一般来说，该值越大，生成的区域越大，窄三角形和宽边缘也就越少。值为0时，平滑将被禁用。
+  ### 交互: 如果将smoothingThreshold设置的太大，即使traversableAreaBorderSize设置为0，仍然会导致边界出现在网格周围。这表示平滑将会放大traversableAreaBorderSize的效果。
+ ## useConservativeExpansion
+  ### 限制: 无
+  ### 描述: 采用额外的算法防止畸形区域的生成。如果网格丢失了本该生成的部分区域，这项特性将能够修复这个错误。开启这项特性将会显著增加处理开销。这是一个实验性的特性，在Recast中没有出现，不知道Recast中是否有出现网格丢失的问题。
+  ### 交互: 无
+ ## minUnconnectedRegionSize
+  ### 限制: > 0
+  ### 描述: 孤岛RegionSize的最小值。单位是体元。没有和其他任何区域相连的区域，如果小于该值，将会被从网格生成中剔除。即将不会被认为是可通行的。
+  ### 交互: 无
+ ## mergeRegionSize
+  ### 限制: >= 0
+  ### 描述: 任何小于该值的区域，在可能的情况下将会被合并为一个更大的区域。单位是体元。能够帮助减少区域的数量，斜线区域该问题特别突出，在区域生成算法中的内在错误将会导致不必要的小区域。如果无法被邻居合并，小区域将会保持不变。
+  ### 交互: 无
+ ## maxEdgeLength
+  ### 限制: >= 0
+  ### 描述: 代表网格边缘的最大边长。如果边长超过了该值，更多的顶点将会被添加。一般情况下，这会减少细长三角形的数量。设为0将会禁用该功能。
+  ### 交互: 无
+ ## edgeMaxDeviation
+  ### 限制: >= 0
+  ### 描述: 网格允许偏离源几何体的最大距离。该值越小，三角形数量越多，但是网格边缘越准确接近XZ平面。设为0将会导致多边形数量剧增，极大的增加处理开销，因此不推荐这么做。
+  ### 交互: 无
+ ## maxVertsPerPoly
+  ### 限制: >= 3
+  ### 描述: 在体元转换为多边形的处理过程中，每个多边形的最大顶点数。值越大，处理开销越大，但是生成的最终网格多边形越好。该值设为6，能取得较好的效果，超过该值效果将会递减。
+  ### 交互: 无
+ ## contourSampleDistance
+  ### 限制: >= 0
+  ### 描述: 将细节网格匹配到源几何体时，采样的距离。影响最终的细节网格相较于源几何体表面的贴合度。值越大，贴合度越高，但是最终三角形数量越多，处理开销也越大。将该值设为0.9以下将禁用该功能。
+  ### 交互: 该参数和edge matching的区别在于这个参数操作高度而不是XZ平面。它也会匹配整个细节网格和源几何体轮廓的表面。edge matching 只匹配网格边缘和源几何体的轮廓。
+ ## contourMaxDeviation
+  ### 限制: >= 0
+  ### 描述: 细节网格允许偏离源几何体表面的最大距离。该值将被 contourSampleDistance影响。如果contourSampleDistance被设为0，该值将无意义。不推荐将该值设置为0，因为将会导致最终细节网格的三角形数量剧增，而极大的增加处理开销。
+  ### 交互: 如果contourSampleDistance被设为0，该值将无意义。
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  

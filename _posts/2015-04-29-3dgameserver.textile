@@ -1,0 +1,23 @@
+---
+layout: post
+title: "3DMMO游戏服务器架构"
+description: "3DMMO游戏服务器架构"
+category: Development
+tags: [GameServer]
+---
+{% include JB/setup %}
+
+h2. 服务器框架
+
+---
+
+# "NavMesh":https://github.com/memononen/recastnavigation
+# "3D碰撞检测":
+# 网络通信
+ ** 连接协议
+  *** "RakNet":https://github.com/OculusVR/RakNet
+  *** "ENet":http://enet.bespin.org/Features.html
+ ** 消息协议:
+  *** "ProtoBuf":https://github.com/google/protobuf/
+  *** "MsgPack":http://msgpack.org/
+  *** BitStream:RakNet集成
