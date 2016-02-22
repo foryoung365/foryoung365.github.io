@@ -13,7 +13,7 @@ h2. 相关资料
 
 # 导航网格开源库:"RecastNavgation":https://github.com/memononen/recastnavigation
 # 一个基于C#的AI库，包含UNITY 3D插件:"CAINav":http://www.critterai.org/projects/cainav/
-# 开源服务端框架："kbengine":https://github.com/kbengine/kbengine
+# 开源服务端框架:"kbengine":https://github.com/kbengine/kbengine
 # WOW服务端模拟器:"TrinityCore":http://www.trinitycore.org/
 
 RecastNavgation是业界比较知名的导航网格生成和寻路的开源库了，大名鼎鼎的UE4和Unity3D游戏引擎都有基于Recast的实现，而上述两个开源服务端框架中，导航网格也是基于Recast的。因此，Recast应该是已经被证明可靠的导航网格LIB。
@@ -112,14 +112,7 @@ h2. 导航网格的生成
   ### 描述: 细节网格允许偏离源几何体表面的最大距离。该值将被 contourSampleDistance影响。如果contourSampleDistance被设为0，该值将无意义。不推荐将该值设置为0，因为将会导致最终细节网格的三角形数量剧增，而极大的增加处理开销。
   ### 交互: 如果contourSampleDistance被设为0，该值将无意义。
   
-  
-  
-  
-  
-  
-  
-  
-  
+
   
   
   
