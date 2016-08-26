@@ -137,9 +137,9 @@ BaseApp上有两种实体
 
 #### 资产库文件夹结构
 
-![资产库文件夹结构图1](http://www.imagebam.com/image/a9ffe4501172228)
+![资产库文件夹结构图1](http://115.imagebam.com/download/L6TjdFIW8tcAXwQhrNO-qA/50118/501172228/1.jpg)
 
-![资产库文件夹结构图2](http://www.imagebam.com/image/cd9fb9501172233)
+![资产库文件夹结构图2](http://116.imagebam.com/download/PKyhaaNqVHdKIbyEB6xLew/50118/501172233/2.jpg)
 
 ### 服务端组件概述
 
