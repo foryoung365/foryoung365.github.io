@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "learningkbengine"
+title: "KBEngine学习笔记"
 description: "KBEngine学习笔记"
 category: development
 tags: [GameServer]
