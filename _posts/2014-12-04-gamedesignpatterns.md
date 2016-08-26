@@ -1,4 +1,5 @@
 ---
+
 layout: post
 title: "英文电子书：游戏编程模式"
 description: "英文电子书：游戏编程模式"
@@ -11,4 +12,4 @@ tags: [C++]
 
 推荐这本电子书，虽然没有《Head First Design Patterns》写的有趣，不过由于是基于游戏来写的，可能更适合做游戏的同学运用。
 
-地址戳这里==>["Game Programming Patterns":http://gameprogrammingpatterns.com/contents.html]
+地址戳这里==&gt;[Game Programming Patterns](http://gameprogrammingpatterns.com/contents.html)
