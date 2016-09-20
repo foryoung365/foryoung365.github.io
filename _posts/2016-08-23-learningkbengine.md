@@ -7,8 +7,6 @@ tags: [GameServer]
 ---
 {% include JB/setup %}
 
-#  KBEngine学习笔记
-
 ## 安装与卸载
 
 * [项目主页](http://kbengine.org/)
